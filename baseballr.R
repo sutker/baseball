@@ -15,11 +15,63 @@ teams <- teams_lu_table %>%
 teams_selected = teams %>%
   select(id, name, abbreviation, venue.id, venue.name, league.id, league.name, division.id, division.name)
 
-# ================ #
-# Game Information
-# ================ #
+# ================= #
+# 2024 Team Rosters
+# ================= #
+# Initialize an empty data frame to store the full rosters
+teams_roster <- data.frame()
 
-# Define the date range (ensure correct formatting)
+# Loop through each team in teams_selected using the "id" column as team_id
+for (i in 1:nrow(teams_selected)) {
+  team_id <- teams_selected$id[i]  # Use "id" column for team_id
+  team_name <- teams_selected$name[i]
+  team_abbreviation <- teams_selected$abbreviation[i]
+  
+  cat("Fetching roster for:", team_name, "(", team_abbreviation, ")\n")
+  
+  # Retrieve the full roster for the given team_id
+  tryCatch({
+    roster <- mlb_rosters(team_id = team_id, season = 2024, roster_type = "fullRoster")
+    
+    # Add team information to the roster data frame
+    roster$team_id <- team_id
+    roster$team_name <- team_name
+    roster$team_abbreviation <- team_abbreviation
+    
+    # Append to the main teams_roster data frame
+    teams_roster <- bind_rows(teams_roster, roster)
+    
+    cat("✅ Successfully added roster for", team_name, "\n")
+  }, error = function(e) {
+    cat("❌ Error retrieving roster for", team_name, ":", conditionMessage(e), "\n")
+  })
+}
+
+# Save to CSV for future use
+write_csv(teams_roster, "mlb_teams_roster_2024.csv")
+
+cat("\n✅ All MLB team rosters collected and saved as 'mlb_teams_roster_2024.csv'.\n")
+
+
+# ======================= #
+# Team Statistics in 2024
+# ======================= #
+Team_FieldingStats = fg_team_fielder(startseason = 2024, endseason = 2024, qual = 'y')
+Team_BattingStats = fg_team_batter(startseason = 2024, endseason = 2024, qual = 'y')
+Team_PitchingStats = fg_team_pitcher(startseason = 2024, endseason = 2024, qual = 'y')
+
+
+# ========================= #
+# Player Statistics in 2024
+# ========================= #
+Player_FieldingStats = fg_fielder_leaders(startseason = 2024, endseason = 2024)
+Player_BattingStats = fg_batter_leaders(startseason = 2024, endseason = 2024)
+
+# ======================== #
+# Game Information in 2024
+# ======================== #
+
+# Date Range
 dates <- seq.Date(as.Date("2024-01-01"), as.Date("2024-12-31"), by = "day")
 dates <- as.character(dates)  # Explicitly convert to character strings
 
@@ -52,6 +104,7 @@ for (date in dates) {
 # Combine all daily game data into a single data frame
 game_info <- bind_rows(game_info_list)
 
+# Selecting preferred columns
 game_info_selected <- game_info %>%
   select(
     game_pk,
@@ -82,10 +135,7 @@ game_info_selected <- game_info %>%
     teams.home.team.name
   )
 
-
-
 cat("\n✅ Scraping complete. Collected game data for all of 2024.\n")
-
 
 
 # ============================= #
@@ -719,3 +769,4 @@ print(stat_descriptions)
 
 cat("\n✅ Lookup table updated and saved as 'mlb_statistics_lookup_complete.csv'.\n")
 cat("Please review and fill in any missing descriptions manually.\n")
+
