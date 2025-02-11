@@ -15,9 +15,15 @@ teams <- teams_lu_table %>%
 teams_selected = teams %>%
   select(id, name, abbreviation, venue.id, venue.name, league.id, league.name, division.id, division.name)
 
+# ====================== #
+# IMPORTANT: SELECT YEAR
+# ====================== #
+target_year = 2024
+
 # ================= #
 # 2024 Team Rosters
 # ================= #
+
 # Initialize an empty data frame to store the full rosters
 teams_roster <- data.frame()
 
@@ -31,7 +37,7 @@ for (i in 1:nrow(teams_selected)) {
   
   # Retrieve the full roster for the given team_id
   tryCatch({
-    roster <- mlb_rosters(team_id = team_id, season = 2024, roster_type = "fullRoster")
+    roster <- mlb_rosters(team_id = team_id, season = target_year, roster_type = "fullRoster")
     
     # Add team information to the roster data frame
     roster$team_id <- team_id
@@ -58,23 +64,23 @@ teams_roster_selected = teams_roster %>%
 # ======================= #
 # Team Statistics in 2024
 # ======================= #
-Team_FieldingStats = fg_team_fielder(startseason = 2024, endseason = 2024, qual = 'y')
-Team_BattingStats = fg_team_batter(startseason = 2024, endseason = 2024, qual = 'y')
-Team_PitchingStats = fg_team_pitcher(startseason = 2024, endseason = 2024, qual = 'y')
+Team_FieldingStats = fg_team_fielder(startseason = target_year, endseason = target_year, qual = 'y')
+Team_BattingStats = fg_team_batter(startseason = target_year, endseason = target_year, qual = 'y')
+Team_PitchingStats = fg_team_pitcher(startseason = target_year, endseason = target_year, qual = 'y')
 
 
 # ========================= #
 # Player Statistics in 2024
 # ========================= #
-Player_FieldingStats = fg_fielder_leaders(startseason = 2024, endseason = 2024)
-Player_BattingStats = fg_batter_leaders(startseason = 2024, endseason = 2024)
+Player_FieldingStats = fg_fielder_leaders(startseason = target_year, endseason = target_year)
+Player_BattingStats = fg_batter_leaders(startseason = target_year, endseason = target_year)
 
 # ======================== #
 # Game Information in 2024
 # ======================== #
 
 # Date Range
-dates <- seq.Date(as.Date("2024-01-01"), as.Date("2024-12-31"), by = "day")
+dates <- seq.Date(as.Date(paste0(as.character(target_year), "-01-01")), as.Date(paste0(as.character(target_year), "-12-31")), by = "day")
 dates <- as.character(dates)  # Explicitly convert to character strings
 
 # Initialize an empty list to store daily game data
@@ -148,11 +154,11 @@ baseball_data <- list()
 
 # All player IDs who played in the 2024 season
 all_players <- chadwick_player_lu() %>%
-  filter(!is.na(key_fangraphs), mlb_played_last == 2024) %>%  # Filter players who played in 2024
+  filter(!is.na(key_fangraphs), mlb_played_last == target_year) %>%  # Filter players who played in 2024
   select(player_id = key_fangraphs)
 
 # Define the range of years for which data should be collected
-years <- 2024:2024  # Modify if needed
+years <- target_year:target_year  # Modify if needed
 
 # Function to scrape batter game logs for ALL players in 2024
 scrape_batter_game_logs <- function() {
@@ -816,3 +822,8 @@ batter_csv_path <- file.path(export_dir, "batter_game_logs_2024.csv")
 pitcher_csv_path <- file.path(export_dir, "pitcher_game_logs_2024.csv")
   write_csv(baseball_data$pitcher_game_logs, pitcher_csv_path)
      cat("📂 Pitcher Logs: ", pitcher_csv_path, "\n")
+  
+
+
+
+
