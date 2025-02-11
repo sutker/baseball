@@ -54,11 +54,6 @@ teams_roster_selected = teams_roster %>%
     person_id, person_full_name, position_name, position_abbreviation, status_description
   )
 
-# Save to CSV for future use
-write_csv(teams_roster_selected, "mlb_teams_roster_2024.csv")
-
-cat("\n✅ All MLB team rosters collected and saved as 'mlb_teams_roster_2024.csv'.\n")
-
 
 # ======================= #
 # Team Statistics in 2024
@@ -234,23 +229,6 @@ baseball_data$batter_game_logs <- scrape_batter_game_logs()
 # Execute function to collect pitcher logs into a data frame
 baseball_data$pitcher_game_logs <- scrape_pitcher_game_logs()
 
-# Define the export directory
-export_dir <- "C:/Users/micha/OneDrive/Desktop/MLBData"
-
-# Define file paths
-batter_csv_path <- file.path(export_dir, "batter_game_logs_2024.csv")
-pitcher_csv_path <- file.path(export_dir, "pitcher_game_logs_2024.csv")
-
-# Save the final data frames as CSV files
-write_csv(baseball_data$batter_game_logs, batter_csv_path)
-write_csv(baseball_data$pitcher_game_logs, pitcher_csv_path)
-
-# Save as an RData file for future use
-save(baseball_data, file = file.path(export_dir, "full_baseball_database.RData"))
-
-cat("\n✅ Scraping complete. Data saved as:\n")
-cat("📂 Batter Logs: ", batter_csv_path, "\n")
-cat("📂 Pitcher Logs: ", pitcher_csv_path, "\n")
 
 # ============================================ #
 # Description of Batting & Pitching Statistics
@@ -768,13 +746,7 @@ stat_descriptions$Description <- unlist(lapply(stat_descriptions$Stat_Abbreviati
   }
 }))
 
-# Save as CSV
-write_csv(stat_descriptions, "mlb_statistics_descriptions.csv")
 
-# Display the lookup table
-print(stat_descriptions)
-
-cat("\n✅ Lookup table updated and saved as 'mlb_statistics_lookup_complete.csv'.\n")
 cat("Please review and fill in any missing descriptions manually.\n")
 
 # ================== #
@@ -796,3 +768,51 @@ View(Player_FieldingStats)
 View(game_info_selected)
 View(baseball_data$pitcher_game_logs)
 View(baseball_data$batter_game_logs)
+
+# ================== #
+# Exporting as a CSV
+# ================== #
+
+# Define the export directory
+export_dir <- "C:/Users/micha/OneDrive/Desktop/MLBData"
+
+# Define file paths
+stat_description_path <- file.path(export_dir, "mlb_statistics_descriptions.csv")
+  write_csv(stat_descriptions, stat_description_path)
+    cat("📂 Statistic Descriptions: ", stat_description_path, "\n")
+  
+
+teams_path <- file.path(export_dir, "mlb_teams.csv")
+  write_csv(teams_selected, teams_path)
+    cat("📂 Team Information: ", teams_path, "\n")
+teams_roster_path <- file.path(export_dir, "mlb_teams_roster_2024.csv")
+  write_csv(teams_roster_selected, teams_roster_path)
+    cat("📂 Team Rosters: ", team_roster_path, "\n")
+  
+
+team_battingstats_path <- file.path(export_dir, "mlb_team_battingstats.csv")
+  write.csv(Team_BattingStats, team_battingstats_path)
+    cat("📂 Team - Batting Statistics: ", team_battingstats_path, "\n")
+team_pitchingstats_path <- file.path(export_dir, "mlb_team_pitchingstats.csv")
+  write.csv(Team_PitchingStats, team_pitchingstats_path)
+    cat("📂 Team - Pitching Statistics: ", team_pitchingstats_path, "\n")
+team_fieldingstats_path <- file.path(export_dir, "mlb_team_fieldingstats.csv")
+  write.csv(Team_FieldingStats, team_fieldingstats_path)
+    cat("📂 Team - Fielding Statistics: ", team_fieldingstats_path, "\n")
+
+player_battingstats_path <- file.path(export_dir, "mlb_player_battingstats.csv")
+  write_csv(Player_BattingStats, player_battingstats_path)
+    cat("📂 Player - Batting Statistics: ", player_battingstats_path, "\n")
+player_fieldingstats_path <- file.path(export_dir, "mlb_player_fieldingstats.csv")
+  write_csv(Player_FieldingStats, player_fieldingstats_path)
+    cat("📂 Player - Fielding Statistics: ", player_fieldingstats_path, "\n")
+
+game_info_path <- file.path(export_dir, "mlb_game_info.csv")
+  write_csv(game_info_selected, game_info_path)
+    cat("📂 Game Information: ", game_info_path, "\n")
+batter_csv_path <- file.path(export_dir, "batter_game_logs_2024.csv")
+  write_csv(baseball_data$batter_game_logs, batter_csv_path)
+    cat("📂 Batter Logs: ", batter_csv_path, "\n")
+pitcher_csv_path <- file.path(export_dir, "pitcher_game_logs_2024.csv")
+  write_csv(baseball_data$pitcher_game_logs, pitcher_csv_path)
+     cat("📂 Pitcher Logs: ", pitcher_csv_path, "\n")
