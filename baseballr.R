@@ -47,8 +47,15 @@ for (i in 1:nrow(teams_selected)) {
   })
 }
 
+teams_roster_selected = teams_roster %>%
+  select(
+    season, 
+    team_id, team_abbreviation, team_name, 
+    person_id, person_full_name, position_name, position_abbreviation, status_description
+  )
+
 # Save to CSV for future use
-write_csv(teams_roster, "mlb_teams_roster_2024.csv")
+write_csv(teams_roster_selected, "mlb_teams_roster_2024.csv")
 
 cat("\n✅ All MLB team rosters collected and saved as 'mlb_teams_roster_2024.csv'.\n")
 
@@ -770,3 +777,22 @@ print(stat_descriptions)
 cat("\n✅ Lookup table updated and saved as 'mlb_statistics_lookup_complete.csv'.\n")
 cat("Please review and fill in any missing descriptions manually.\n")
 
+# ================== #
+# Useful Data frames
+# ================== #
+
+View(stat_descriptions)
+
+View(teams_selected)
+View(teams_roster_selected)
+
+View(Team_BattingStats)
+View(Team_PitchingStats)
+View(Team_FieldingStats)
+
+View(Player_BattingStats)
+View(Player_FieldingStats)
+
+View(game_info_selected)
+View(baseball_data$pitcher_game_logs)
+View(baseball_data$batter_game_logs)
