@@ -12,7 +12,7 @@ library(lubridate)
 teams <- teams_lu_table %>%
   filter(sport.name == "Major League Baseball")
 
-teams_selected = teams %>%
+TeamList = teams %>%
   select(id, name, abbreviation, venue.id, venue.name, league.id, league.name, division.id, division.name)
 
 # ====================== #
@@ -27,11 +27,11 @@ target_year = 2024
 # Initialize an empty data frame to store the full rosters
 teams_roster <- data.frame()
 
-# Loop through each team in teams_selected using the "id" column as team_id
-for (i in 1:nrow(teams_selected)) {
-  team_id <- teams_selected$id[i]  # Use "id" column for team_id
-  team_name <- teams_selected$name[i]
-  team_abbreviation <- teams_selected$abbreviation[i]
+# Loop through each team in TeamList using the "id" column as team_id
+for (i in 1:nrow(TeamList)) {
+  team_id <- TeamList$id[i]  # Use "id" column for team_id
+  team_name <- TeamList$name[i]
+  team_abbreviation <- TeamList$abbreviation[i]
   
   cat("Fetching roster for:", team_name, "(", team_abbreviation, ")\n")
   
@@ -53,7 +53,7 @@ for (i in 1:nrow(teams_selected)) {
   })
 }
 
-teams_roster_selected = teams_roster %>%
+Rosters = teams_roster %>%
   select(
     season, 
     team_id, team_abbreviation, team_name, 
@@ -64,16 +64,16 @@ teams_roster_selected = teams_roster %>%
 # ======================= #
 # Team Statistics in 2024
 # ======================= #
-Team_FieldingStats = fg_team_fielder(startseason = target_year, endseason = target_year, qual = 'y')
-Team_BattingStats = fg_team_batter(startseason = target_year, endseason = target_year, qual = 'y')
-Team_PitchingStats = fg_team_pitcher(startseason = target_year, endseason = target_year, qual = 'y')
+TeamFieldingStatistics = fg_team_fielder(startseason = target_year, endseason = target_year, qual = 'y')
+TeamBattingStatistics = fg_team_batter(startseason = target_year, endseason = target_year, qual = 'y')
+TeamPitchingStatistics = fg_team_pitcher(startseason = target_year, endseason = target_year, qual = 'y')
 
 
 # ========================= #
 # Player Statistics in 2024
 # ========================= #
-Player_FieldingStats = fg_fielder_leaders(startseason = target_year, endseason = target_year)
-Player_BattingStats = fg_batter_leaders(startseason = target_year, endseason = target_year)
+PlayerFieldingStatistics = fg_fielder_leaders(startseason = target_year, endseason = target_year)
+PlayerBattingStatistics = fg_batter_leaders(startseason = target_year, endseason = target_year)
 
 # ======================== #
 # Game Information in 2024
@@ -113,7 +113,7 @@ for (date in dates) {
 game_info <- bind_rows(game_info_list)
 
 # Selecting preferred columns
-game_info_selected <- game_info %>%
+GameInformation <- game_info %>%
   select(
     game_pk,
     season,
@@ -229,11 +229,15 @@ scrape_pitcher_game_logs <- function() {
   return(pitcher_game_logs_df)
 }
 
-# Execute function to collect batter logs into a data frame
+# Execute function to collect batter & Pitcher logs into a data frame
 baseball_data$batter_game_logs <- scrape_batter_game_logs()
-
-# Execute function to collect pitcher logs into a data frame
 baseball_data$pitcher_game_logs <- scrape_pitcher_game_logs()
+
+# Create batter & pitcher log data frames
+BatterGameLogs = baseball_data$batter_game_logs
+PitcherGameLogs = baseball_data$pitcher_game_logs
+
+
 
 
 # ============================================ #
@@ -761,19 +765,19 @@ cat("Please review and fill in any missing descriptions manually.\n")
 
 View(stat_descriptions)
 
-View(teams_selected)
-View(teams_roster_selected)
+View(TeamList)
+View(Rosters)
 
-View(Team_BattingStats)
-View(Team_PitchingStats)
-View(Team_FieldingStats)
+View(TeamBattingStatistics)
+View(TeamPitchingStatistics)
+View(TeamFieldingStatistics)
 
-View(Player_BattingStats)
-View(Player_FieldingStats)
+View(PlayerBattingStatistics)
+View(PlayerFieldingStatistics)
 
-View(game_info_selected)
-View(baseball_data$pitcher_game_logs)
-View(baseball_data$batter_game_logs)
+View(GameInformation)
+View(PitcherGameLogs)
+View(BatterGameLogs)
 
 # ================== #
 # Exporting as a CSV
@@ -783,47 +787,42 @@ View(baseball_data$batter_game_logs)
 export_dir <- "C:/Users/micha/OneDrive/Desktop/MLBData"
 
 # Define file paths
-stat_description_path <- file.path(export_dir, "mlb_statistics_descriptions.csv")
+stat_description_path <- file.path(export_dir, "StatisticDescriptions.csv")
   write_csv(stat_descriptions, stat_description_path)
     cat("📂 Statistic Descriptions: ", stat_description_path, "\n")
   
 
-teams_path <- file.path(export_dir, "mlb_teams.csv")
-  write_csv(teams_selected, teams_path)
+teams_path <- file.path(export_dir, "TeamList.csv")
+  write_csv(TeamList, teams_path)
     cat("📂 Team Information: ", teams_path, "\n")
-teams_roster_path <- file.path(export_dir, "mlb_teams_roster_2024.csv")
-  write_csv(teams_roster_selected, teams_roster_path)
+teams_roster_path <- file.path(export_dir, "TeamRosters.csv")
+  write_csv(Rosters, teams_roster_path)
     cat("📂 Team Rosters: ", team_roster_path, "\n")
   
 
-team_battingstats_path <- file.path(export_dir, "mlb_team_battingstats.csv")
-  write.csv(Team_BattingStats, team_battingstats_path)
-    cat("📂 Team - Batting Statistics: ", team_battingstats_path, "\n")
-team_pitchingstats_path <- file.path(export_dir, "mlb_team_pitchingstats.csv")
-  write.csv(Team_PitchingStats, team_pitchingstats_path)
-    cat("📂 Team - Pitching Statistics: ", team_pitchingstats_path, "\n")
-team_fieldingstats_path <- file.path(export_dir, "mlb_team_fieldingstats.csv")
-  write.csv(Team_FieldingStats, team_fieldingstats_path)
-    cat("📂 Team - Fielding Statistics: ", team_fieldingstats_path, "\n")
+TeamBattingStatistics_path <- file.path(export_dir, "TeamBattingStatistics.csv")
+  write.csv(TeamBattingStatistics, TeamBattingStatistics_path)
+    cat("📂 Team - Batting Statistics: ", TeamBattingStatistics_path, "\n")
+TeamPitchingStatistics_path <- file.path(export_dir, "TeamPitchingStatistics.csv")
+  write.csv(TeamPitchingStatistics, TeamPitchingStatistics_path)
+    cat("📂 Team - Pitching Statistics: ", TeamPitchingStatistics_path, "\n")
+TeamFieldingStatistics_path <- file.path(export_dir, "TeamFieldingStatistics.csv")
+  write.csv(TeamFieldingStatistics, TeamFieldingStatistics_path)
+    cat("📂 Team - Fielding Statistics: ", TeamFieldingStatistics_path, "\n")
 
-player_battingstats_path <- file.path(export_dir, "mlb_player_battingstats.csv")
-  write_csv(Player_BattingStats, player_battingstats_path)
-    cat("📂 Player - Batting Statistics: ", player_battingstats_path, "\n")
-player_fieldingstats_path <- file.path(export_dir, "mlb_player_fieldingstats.csv")
-  write_csv(Player_FieldingStats, player_fieldingstats_path)
-    cat("📂 Player - Fielding Statistics: ", player_fieldingstats_path, "\n")
+PlayerBattingStatistics_path <- file.path(export_dir, "PlayerBattingStatistics.csv")
+  write_csv(PlayerBattingStatistics, PlayerBattingStatistics_path)
+    cat("📂 Player - Batting Statistics: ", PlayerBattingStatistics_path, "\n")
+PlayerFieldingStatistics_path <- file.path(export_dir, "PlayerFieldingStatistics.csv")
+  write_csv(PlayerFieldingStatistics, PlayerFieldingStatistics_path)
+    cat("📂 Player - Fielding Statistics: ", PlayerFieldingStatistics_path, "\n")
 
-game_info_path <- file.path(export_dir, "mlb_game_info.csv")
-  write_csv(game_info_selected, game_info_path)
+game_info_path <- file.path(export_dir, "GameInformation.csv")
+  write_csv(GameInformation, game_info_path)
     cat("📂 Game Information: ", game_info_path, "\n")
-batter_csv_path <- file.path(export_dir, "batter_game_logs_2024.csv")
-  write_csv(baseball_data$batter_game_logs, batter_csv_path)
+batter_csv_path <- file.path(export_dir, "BatterGameLogs.csv")
+  write_csv(BatterGameLogs, batter_csv_path)
     cat("📂 Batter Logs: ", batter_csv_path, "\n")
-pitcher_csv_path <- file.path(export_dir, "pitcher_game_logs_2024.csv")
-  write_csv(baseball_data$pitcher_game_logs, pitcher_csv_path)
+pitcher_csv_path <- file.path(export_dir, "PitcherGameLogs.csv")
+  write_csv(PitcherGameLogs, pitcher_csv_path)
      cat("📂 Pitcher Logs: ", pitcher_csv_path, "\n")
-  
-
-
-
-
