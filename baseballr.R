@@ -5,6 +5,7 @@ library(baseballr)
 library(dplyr)
 library(readr)
 library(lubridate)
+library(ggplot2)
 
 # ================ #
 # Team Information
@@ -13,7 +14,7 @@ teams <- teams_lu_table %>%
   filter(sport.name == "Major League Baseball")
 
 TeamList = teams %>%
-  select(id, name, abbreviation, venue.id, venue.name, league.id, league.name, division.id, division.name)
+  select(id, name, bref_abbreviation, abbreviation, venue.id, venue.name, league.id, league.name, division.id, division.name)
 
 # ====================== #
 # IMPORTANT: SELECT YEAR
@@ -37,7 +38,7 @@ for (i in 1:nrow(TeamList)) {
   
   # Retrieve the full roster for the given team_id
   tryCatch({
-    roster <- mlb_rosters(team_id = team_id, season = target_year, roster_type = "fullRoster")
+    roster <- mlb_rosters(team_id = team_id, season = target_year, roster_type = "active")
     
     # Add team information to the roster data frame
     roster$team_id <- team_id
@@ -54,6 +55,8 @@ for (i in 1:nrow(TeamList)) {
 }
 
 Rosters = teams_roster %>%
+  filter(teams_roster$status_description == "Active") %>%
+  distinct(person_id, .keep_all = TRUE) %>%
   select(
     season, 
     team_id, team_abbreviation, team_name, 
@@ -234,7 +237,9 @@ baseball_data$batter_game_logs <- scrape_batter_game_logs()
 baseball_data$pitcher_game_logs <- scrape_pitcher_game_logs()
 
 # Create batter & pitcher log data frames
-BatterGameLogs = baseball_data$batter_game_logs
+BatterGameLogs = baseball_data$batter_game_logs %>%
+  filter(AB > 0)
+
 PitcherGameLogs = baseball_data$pitcher_game_logs
 
 
@@ -788,41 +793,162 @@ export_dir <- "C:/Users/micha/OneDrive/Desktop/MLBData"
 
 # Define file paths
 stat_description_path <- file.path(export_dir, "StatisticDescriptions.csv")
-  write_csv(stat_descriptions, stat_description_path)
-    cat("📂 Statistic Descriptions: ", stat_description_path, "\n")
-  
+write_csv(stat_descriptions, stat_description_path)
+cat("📂 Statistic Descriptions: ", stat_description_path, "\n")
+
 
 teams_path <- file.path(export_dir, "TeamList.csv")
-  write_csv(TeamList, teams_path)
-    cat("📂 Team Information: ", teams_path, "\n")
+write_csv(TeamList, teams_path)
+cat("📂 Team Information: ", teams_path, "\n")
 teams_roster_path <- file.path(export_dir, "TeamRosters.csv")
-  write_csv(Rosters, teams_roster_path)
-    cat("📂 Team Rosters: ", team_roster_path, "\n")
-  
+write_csv(Rosters, teams_roster_path)
+cat("📂 Team Rosters: ", teams_roster_path, "\n")
+
 
 TeamBattingStatistics_path <- file.path(export_dir, "TeamBattingStatistics.csv")
-  write.csv(TeamBattingStatistics, TeamBattingStatistics_path)
-    cat("📂 Team - Batting Statistics: ", TeamBattingStatistics_path, "\n")
+write.csv(TeamBattingStatistics, TeamBattingStatistics_path)
+cat("📂 Team - Batting Statistics: ", TeamBattingStatistics_path, "\n")
 TeamPitchingStatistics_path <- file.path(export_dir, "TeamPitchingStatistics.csv")
-  write.csv(TeamPitchingStatistics, TeamPitchingStatistics_path)
-    cat("📂 Team - Pitching Statistics: ", TeamPitchingStatistics_path, "\n")
+write.csv(TeamPitchingStatistics, TeamPitchingStatistics_path)
+cat("📂 Team - Pitching Statistics: ", TeamPitchingStatistics_path, "\n")
 TeamFieldingStatistics_path <- file.path(export_dir, "TeamFieldingStatistics.csv")
-  write.csv(TeamFieldingStatistics, TeamFieldingStatistics_path)
-    cat("📂 Team - Fielding Statistics: ", TeamFieldingStatistics_path, "\n")
+write.csv(TeamFieldingStatistics, TeamFieldingStatistics_path)
+cat("📂 Team - Fielding Statistics: ", TeamFieldingStatistics_path, "\n")
 
 PlayerBattingStatistics_path <- file.path(export_dir, "PlayerBattingStatistics.csv")
-  write_csv(PlayerBattingStatistics, PlayerBattingStatistics_path)
-    cat("📂 Player - Batting Statistics: ", PlayerBattingStatistics_path, "\n")
+write_csv(PlayerBattingStatistics, PlayerBattingStatistics_path)
+cat("📂 Player - Batting Statistics: ", PlayerBattingStatistics_path, "\n")
 PlayerFieldingStatistics_path <- file.path(export_dir, "PlayerFieldingStatistics.csv")
-  write_csv(PlayerFieldingStatistics, PlayerFieldingStatistics_path)
-    cat("📂 Player - Fielding Statistics: ", PlayerFieldingStatistics_path, "\n")
+write_csv(PlayerFieldingStatistics, PlayerFieldingStatistics_path)
+cat("📂 Player - Fielding Statistics: ", PlayerFieldingStatistics_path, "\n")
 
 game_info_path <- file.path(export_dir, "GameInformation.csv")
-  write_csv(GameInformation, game_info_path)
-    cat("📂 Game Information: ", game_info_path, "\n")
+write_csv(GameInformation, game_info_path)
+cat("📂 Game Information: ", game_info_path, "\n")
 batter_csv_path <- file.path(export_dir, "BatterGameLogs.csv")
-  write_csv(BatterGameLogs, batter_csv_path)
-    cat("📂 Batter Logs: ", batter_csv_path, "\n")
+write_csv(BatterGameLogs, batter_csv_path)
+cat("📂 Batter Logs: ", batter_csv_path, "\n")
 pitcher_csv_path <- file.path(export_dir, "PitcherGameLogs.csv")
-  write_csv(PitcherGameLogs, pitcher_csv_path)
-     cat("📂 Pitcher Logs: ", pitcher_csv_path, "\n")
+write_csv(PitcherGameLogs, pitcher_csv_path)
+cat("📂 Pitcher Logs: ", pitcher_csv_path, "\n")
+
+# ============ #
+# Game Results
+# ============ #
+
+# Creating a table to illustrate the outcome of each team's games
+GameResults = 
+  bind_rows(
+    GameInformation %>% 
+    filter(seriesGameNumber != "NA", gamesInSeries != "NA", teams.home.score != "NA", teams.away.score != "NA", seriesDescription == "Regular Season") %>%
+    select(
+      game_pk,
+      officialDate,
+      seriesGameNumber,
+      gamesInSeries,
+      
+      teams.home.team.id,
+      teams.home.team.name,
+      teams.home.score,
+      teams.home.leagueRecord.wins,
+      teams.home.leagueRecord.losses,
+      teams.home.leagueRecord.pct,
+      
+      teams.away.team.id,
+      teams.away.team.name,
+      teams.away.score,
+      teams.away.leagueRecord.wins,
+      teams.away.leagueRecord.losses,
+      teams.away.leagueRecord.pct
+    ) %>%
+    rename(
+      GameID = game_pk,
+      OfficialDate = officialDate,
+      SeriesGameNumber = seriesGameNumber,
+      NumGamesInSeries = gamesInSeries,
+      
+      TeamID = teams.home.team.id,
+      Team = teams.home.team.name,
+      TeamScore = teams.home.score,
+      TeamWins = teams.home.leagueRecord.wins,
+      TeamLosses = teams.home.leagueRecord.losses,
+      TeamRecordPct = teams.home.leagueRecord.pct,
+      
+      OpponentID = teams.away.team.id,
+      Opponent = teams.away.team.name,
+      OpponentScore = teams.away.score,
+      OpponentWins = teams.away.leagueRecord.wins,
+      OpponentLosses = teams.away.leagueRecord.losses,
+      OpponentRecordPct = teams.away.leagueRecord.pct
+    )
+    %>%
+      mutate(
+        TeamRecord = paste0(TeamWins, "-", TeamLosses),
+        OpponentRecord = paste0(OpponentWins, "-", OpponentLosses),
+        PointDifferential = TeamScore - OpponentScore,
+        GameOfSeries = paste0(SeriesGameNumber, "/", NumGamesInSeries),
+        HomeGame = TRUE,
+        Score = paste0(TeamScore, "-", OpponentScore),
+        Outcome = ifelse(PointDifferential > 0, "W",
+                         ifelse(PointDifferential == 0, "T", "L")),
+        OutcomeNumeric = case_when(Outcome == "W" ~ 1, Outcome == "L" ~ 0, Outcome == "T" ~ 0.5)
+      ),
+    GameInformation %>% 
+      filter(seriesGameNumber != "NA", gamesInSeries != "NA", teams.home.score != "NA", teams.away.score != "NA", seriesDescription == "Regular Season") %>%
+      select(
+        game_pk,
+        officialDate,
+        seriesGameNumber,
+        gamesInSeries,
+        
+        teams.home.team.id,
+        teams.home.team.name,
+        teams.home.score,
+        teams.home.leagueRecord.wins,
+        teams.home.leagueRecord.losses,
+        teams.home.leagueRecord.pct,
+        
+        teams.away.team.id,
+        teams.away.team.name,
+        teams.away.score,
+        teams.away.leagueRecord.wins,
+        teams.away.leagueRecord.losses,
+        teams.away.leagueRecord.pct
+      ) %>%
+      rename(
+        GameID = game_pk,
+        OfficialDate = officialDate,
+        SeriesGameNumber = seriesGameNumber,
+        NumGamesInSeries = gamesInSeries,
+        
+        TeamID = teams.away.team.id,
+        Team = teams.away.team.name,
+        TeamScore = teams.away.score,
+        TeamWins = teams.away.leagueRecord.wins,
+        TeamLosses = teams.away.leagueRecord.losses,
+        TeamRecordPct = teams.away.leagueRecord.pct,
+        
+        OpponentID = teams.home.team.id,
+        Opponent = teams.home.team.name,
+        OpponentScore = teams.home.score,
+        OpponentWins = teams.home.leagueRecord.wins,
+        OpponentLosses = teams.home.leagueRecord.losses,
+        OpponentRecordPct = teams.home.leagueRecord.pct
+      )
+    %>%
+      mutate(
+        TeamRecord = paste0(TeamWins, "-", TeamLosses),
+        OpponentRecord = paste0(OpponentWins, "-", OpponentLosses),
+        PointDifferential = TeamScore - OpponentScore,
+        GameOfSeries = paste0(SeriesGameNumber, "/", NumGamesInSeries),
+        HomeGame = FALSE,
+        Score = paste0(TeamScore, "-", OpponentScore),
+        Outcome = ifelse(PointDifferential > 0, "W",
+                         ifelse(PointDifferential == 0, "T", "L")),
+        OutcomeNumeric = case_when(Outcome == "W" ~ 1, Outcome == "L" ~ 0, Outcome == "T" ~ 0.5)
+      )
+    )
+  
+temp_BatterGameLogs = BatterGameLogs %>%
+  left_join(TeamList %>% select(bref_abbreviation, name), by = c("Team" = "bref_abbrivation"))
+
