@@ -951,4 +951,3 @@ GameResults =
   
 temp_BatterGameLogs = BatterGameLogs %>%
   left_join(TeamList %>% select(bref_abbreviation, name), by = c("Team" = "bref_abbrivation"))
-
