@@ -39,7 +39,7 @@ for (i in 1:nrow(TeamList)) {
   cat("Fetching roster for:", team_name, "(", team_abbreviation, ")\n")
   
   tryCatch({
-    roster <- mlb_rosters(team_id = team_id, season = target_year, roster_type = "active")
+    roster <- mlb_rosters(team_id = team_id, season = target_year, roster_type = "fullRoster")
     
     roster$team_id <- team_id
     roster$team_name <- team_name
@@ -54,7 +54,6 @@ for (i in 1:nrow(TeamList)) {
 }
 
 Rosters = teams_roster %>%
-  filter(teams_roster$status_description == "Active") %>%
   distinct(person_id, .keep_all = TRUE) %>%
   select(
     season, 
@@ -357,26 +356,23 @@ pitcher_csv_path <- file.path(export_dir, "PitcherGameLogs.csv")
 write_csv(PitcherGameLogs, pitcher_csv_path)
 cat("📂 Pitcher Logs: ", pitcher_csv_path, "\n")
 
-
 # ==================================================================================== #
 #                               PLAYER ELO SYSTEM
 # ==================================================================================== #
 
 # === SETUP === #
 
-# Initialize Elo Ratings
+# 1. Initialize Elo Ratings for All Batters
 Player_batter_elos <- Rosters %>%
   distinct(player_pk) %>%
   mutate(current_elo = 1000)
 
-Player_pitcher_elos <- Rosters %>%
-  distinct(player_pk) %>%
-  mutate(current_elo = 1000)
-
+# 2. Identify Starting Pitchers
 starting_pitchers <- PitcherGameLogs %>%
   filter(GS == 1) %>%
   select(game_pk, pitcher_team = Team, pitcher_pk = player_pk)
 
+# 3. Join Batters with Starting Pitchers
 Player_BatterWithPitcher <- BatterGameLogs %>%
   select(game_pk, batter_pk = player_pk, Team, Date, `1B`, `2B`, `3B`, HR, BB, IBB, HBP, AB) %>%
   mutate(across(c(`1B`, `2B`, `3B`, HR, BB, IBB, HBP, AB), as.numeric)) %>%
@@ -384,16 +380,24 @@ Player_BatterWithPitcher <- BatterGameLogs %>%
     UBB = BB - IBB,
     TotalBases = `1B` + 2 * `2B` + 3 * `3B` + 4 * HR,
     OnBaseEvents = UBB + HBP,
-    GamePerformance = TotalBases + OnBaseEvents
+    GamePerformance = TotalBases + OnBaseEvents,
+    GamePerformanceRate = ifelse(AB > 0, (TotalBases + OnBaseEvents) / AB, 0)
   ) %>%
   left_join(starting_pitchers, by = "game_pk") %>%
   filter(Team != pitcher_team)
 
+# 4. Create Pitcher Elo Table Only for Involved Pitchers
+Player_pitcher_elos <- Player_BatterWithPitcher %>%
+  distinct(pitcher_pk) %>%
+  rename(player_pk = pitcher_pk) %>%
+  mutate(current_elo = 1000)
 
-Player_tune_logistic_slope_logloss <- function(Player_BatterWithPitcher, Player_batter_elos_raw, Player_pitcher_elos_raw, slope_range = seq(0.0, 10.0, by = 0.05), K = 12.6, verbose = TRUE) {
+# === SLOPE TUNING FUNCTION === #
 
-  Player_center_value <- mean(Player_BatterWithPitcher$GamePerformance, na.rm = TRUE)
-  if (verbose) cat(sprintf("📊 Logistic center (mean GamePerformance): %.3f\n", Player_center_value))
+Player_tune_logistic_slope_logloss <- function(Player_BatterWithPitcher, Player_batter_elos_raw, Player_pitcher_elos_raw, slope_range = seq(1, 10.0, by = 0.1), K = 40, verbose = TRUE) {
+  
+  Player_center_value <- mean(Player_BatterWithPitcher$GamePerformanceRate, na.rm = TRUE)
+  if (verbose) cat(sprintf("📊 Logistic center (mean GamePerformanceRate): %.3f\n", Player_center_value))
   
   log_loss <- function(actual, predicted, eps = 1e-15) {
     predicted <- pmin(pmax(predicted, eps), 1 - eps)
@@ -409,7 +413,7 @@ Player_tune_logistic_slope_logloss <- function(Player_BatterWithPitcher, Player_
       row <- Player_BatterWithPitcher[i, ]
       b_id <- row$batter_pk
       p_id <- row$pitcher_pk
-      g_perf <- row$GamePerformance
+      g_perf <- row$GamePerformanceRate
       
       if (is.na(b_id) || is.na(p_id) || is.na(g_perf)) next
       
@@ -452,33 +456,36 @@ Player_tune_logistic_slope_logloss <- function(Player_BatterWithPitcher, Player_
   ))
 }
 
-
+# === Run slope tuning ===
 Player_results_logloss <- Player_tune_logistic_slope_logloss(
   Player_BatterWithPitcher = Player_BatterWithPitcher,
   Player_batter_elos_raw = Player_batter_elos,
   Player_pitcher_elos_raw = Player_pitcher_elos
 )
 
-Player_optimal_slope = Player_results_logloss$best_slope
+Player_optimal_slope <- Player_results_logloss$best_slope
+Player_center_value <- Player_results_logloss$Player_center_value
 
-
-
-Player_center_value <- mean(Player_BatterWithPitcher$GamePerformance, na.rm = TRUE)
-
+# === Apply logistic score ===
 Player_logistic_score <- function(x, center = Player_center_value, slope = Player_optimal_slope) {
   1 / (1 + exp(-slope * (x - center)))
 }
 
 Player_BatterWithPitcher <- Player_BatterWithPitcher %>%
-  mutate(performance_score = Player_logistic_score(GamePerformance))
+  mutate(performance_score = Player_logistic_score(GamePerformanceRate))
 
-
-# === ELO SYSTEM === #
-K <- 12.6
+# === ELO SYSTEM (UPDATED) === #
+K <- 40
 Player_elo_log <- list()
 
-Player_elo_batters <- Player_batter_elos %>% rename(batter_pk = player_pk)
-Player_elo_pitchers <- Player_pitcher_elos %>% rename(pitcher_pk = player_pk)
+# Reinitialize Elo ratings for involved batters and pitchers
+Player_elo_batters <- Player_BatterWithPitcher %>%
+  distinct(batter_pk) %>%
+  mutate(current_elo = 1000)
+
+Player_elo_pitchers <- Player_BatterWithPitcher %>%
+  distinct(pitcher_pk) %>%
+  mutate(current_elo = 1000)
 
 total <- nrow(Player_BatterWithPitcher)
 
@@ -501,8 +508,7 @@ for (i in 1:total) {
   
   Player_elo_batters$current_elo[b_index] <- b_rating + delta
   Player_elo_pitchers$current_elo[p_index] <- p_rating - delta
-
-
+  
   Player_elo_log[[i]] <- data.frame(
     game_pk = row$game_pk,
     date = row$Date,
@@ -522,6 +528,7 @@ for (i in 1:total) {
   }
 }
 
+# === FINAL OUTPUTS === #
 PlayerEloLog <- bind_rows(Player_elo_log)
 
 PlayerFinalEloRatings <- bind_rows(
@@ -533,6 +540,11 @@ PlayerFinalEloWithNames <- PlayerFinalEloRatings %>%
   left_join(Rosters %>% select(player_pk, person_full_name, team_name, position_name),
             by = "player_pk") %>%
   distinct(player_pk, .keep_all = TRUE)
+
+# Optional: Diagnostic checks
+cat("📊 Pitchers updated:", length(unique(PlayerEloLog$pitcher_pk)), "\n")
+cat("📊 Batters updated:", length(unique(PlayerEloLog$batter_pk)), "\n")
+
 
 
 # ==================================================================================== #
