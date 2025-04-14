@@ -1,3 +1,6 @@
+# ==================================================================================== #
+#                                     DATA PREPARATION 
+# ==================================================================================== #
 rm(list = ls())
 
 library(baseballr)
@@ -5,6 +8,8 @@ library(dplyr)
 library(readr)
 library(lubridate)
 library(ggplot2)
+library(ggrepel)
+library(gganimate)
 
 # ================ #
 # Team Information
@@ -353,29 +358,26 @@ write_csv(PitcherGameLogs, pitcher_csv_path)
 cat("📂 Pitcher Logs: ", pitcher_csv_path, "\n")
 
 
-# === #
-# GAME-LEVEL ELO SYSTEM
-# === #
-library(dplyr)
+# ==================================================================================== #
+#                               PLAYER ELO SYSTEM
+# ==================================================================================== #
 
 # === SETUP === #
 
-# 1. Initialize Elo Ratings
-batter_elos <- Rosters %>%
+# Initialize Elo Ratings
+Player_batter_elos <- Rosters %>%
   distinct(player_pk) %>%
   mutate(current_elo = 1000)
 
-pitcher_elos <- Rosters %>%
+Player_pitcher_elos <- Rosters %>%
   distinct(player_pk) %>%
   mutate(current_elo = 1000)
 
-# 2. Identify Starting Pitchers
 starting_pitchers <- PitcherGameLogs %>%
   filter(GS == 1) %>%
   select(game_pk, pitcher_team = Team, pitcher_pk = player_pk)
 
-# 3. Prepare Batter Logs with Performance Metric
-BatterWithPitcher <- BatterGameLogs %>%
+Player_BatterWithPitcher <- BatterGameLogs %>%
   select(game_pk, batter_pk = player_pk, Team, Date, `1B`, `2B`, `3B`, HR, BB, IBB, HBP, AB) %>%
   mutate(across(c(`1B`, `2B`, `3B`, HR, BB, IBB, HBP, AB), as.numeric)) %>%
   mutate(
@@ -387,47 +389,43 @@ BatterWithPitcher <- BatterGameLogs %>%
   left_join(starting_pitchers, by = "game_pk") %>%
   filter(Team != pitcher_team)
 
-# 4. Logistic Scoring Function (performance score ∈ [0, 1])
 
-tune_logistic_slope_logloss <- function(BatterWithPitcher, batter_elos_raw, pitcher_elos_raw, slope_range = seq(0.0, 10.0, by = 0.05), K = 12.6, verbose = TRUE) {
+Player_tune_logistic_slope_logloss <- function(Player_BatterWithPitcher, Player_batter_elos_raw, Player_pitcher_elos_raw, slope_range = seq(0.0, 10.0, by = 0.05), K = 12.6, verbose = TRUE) {
 
-  # 📊 Compute center of GamePerformance
-  center_value <- mean(BatterWithPitcher$GamePerformance, na.rm = TRUE)
-  if (verbose) cat(sprintf("📊 Logistic center (mean GamePerformance): %.3f\n", center_value))
+  Player_center_value <- mean(Player_BatterWithPitcher$GamePerformance, na.rm = TRUE)
+  if (verbose) cat(sprintf("📊 Logistic center (mean GamePerformance): %.3f\n", Player_center_value))
   
-  # 🔧 Log loss calculator
   log_loss <- function(actual, predicted, eps = 1e-15) {
     predicted <- pmin(pmax(predicted, eps), 1 - eps)
     -mean(actual * log(predicted) + (1 - actual) * log(1 - predicted))
   }
   
-  # 🎯 Score one slope by log loss
   compute_logloss_for_slope <- function(slope) {
-    batter_elos <- batter_elos_raw %>% rename(batter_pk = player_pk) %>% mutate(current_elo = 1000)
-    pitcher_elos <- pitcher_elos_raw %>% rename(pitcher_pk = player_pk) %>% mutate(current_elo = 1000)
+    Player_batter_elos <- Player_batter_elos_raw %>% rename(batter_pk = player_pk) %>% mutate(current_elo = 1000)
+    Player_pitcher_elos <- Player_pitcher_elos_raw %>% rename(pitcher_pk = player_pk) %>% mutate(current_elo = 1000)
     loss_values <- c()
     
-    for (i in 1:nrow(BatterWithPitcher)) {
-      row <- BatterWithPitcher[i, ]
+    for (i in 1:nrow(Player_BatterWithPitcher)) {
+      row <- Player_BatterWithPitcher[i, ]
       b_id <- row$batter_pk
       p_id <- row$pitcher_pk
       g_perf <- row$GamePerformance
       
       if (is.na(b_id) || is.na(p_id) || is.na(g_perf)) next
       
-      b_index <- match(b_id, batter_elos$batter_pk)
-      p_index <- match(p_id, pitcher_elos$pitcher_pk)
+      b_index <- match(b_id, Player_batter_elos$batter_pk)
+      p_index <- match(p_id, Player_pitcher_elos$pitcher_pk)
       if (is.na(b_index) || is.na(p_index)) next
       
-      r_b <- batter_elos$current_elo[b_index]
-      r_p <- pitcher_elos$current_elo[p_index]
+      r_b <- Player_batter_elos$current_elo[b_index]
+      r_p <- Player_pitcher_elos$current_elo[p_index]
       
       expected_batter <- 1 / (1 + 10^((r_p - r_b) / 400))
-      actual_outcome <- 1 / (1 + exp(-slope * (g_perf - center_value)))
+      actual_outcome <- 1 / (1 + exp(-slope * (g_perf - Player_center_value)))
       
       delta <- K * (actual_outcome - expected_batter)
-      batter_elos$current_elo[b_index] <- r_b + delta
-      pitcher_elos$current_elo[p_index] <- r_p - delta
+      Player_batter_elos$current_elo[b_index] <- r_b + delta
+      Player_pitcher_elos$current_elo[p_index] <- r_p - delta
       
       loss_values <- c(loss_values, log_loss(actual_outcome, expected_batter))
     }
@@ -435,11 +433,10 @@ tune_logistic_slope_logloss <- function(BatterWithPitcher, batter_elos_raw, pitc
     return(mean(loss_values, na.rm = TRUE))
   }
   
-  # 🔁 Tune across all slope values
   logloss_results <- sapply(slope_range, compute_logloss_for_slope)
   best_slope <- slope_range[which.min(logloss_results)]
   
-  # 📈 Plot result
+  # Plot result
   plot(slope_range, logloss_results, type = "b", pch = 19,
        col = "darkgreen", main = "Logistic Slope Tuning via Log Loss",
        xlab = "Logistic Slope", ylab = "Log Loss")
@@ -451,67 +448,62 @@ tune_logistic_slope_logloss <- function(BatterWithPitcher, batter_elos_raw, pitc
     best_slope = best_slope,
     slope_range = slope_range,
     logloss_values = logloss_results,
-    center_value = center_value
+    Player_center_value = Player_center_value
   ))
 }
 
 
-results_logloss <- tune_logistic_slope_logloss(
-  BatterWithPitcher = BatterWithPitcher,
-  batter_elos_raw = batter_elos,
-  pitcher_elos_raw = pitcher_elos
+Player_results_logloss <- Player_tune_logistic_slope_logloss(
+  Player_BatterWithPitcher = Player_BatterWithPitcher,
+  Player_batter_elos_raw = Player_batter_elos,
+  Player_pitcher_elos_raw = Player_pitcher_elos
 )
 
-optimal_slope = results_logloss$best_slope
+Player_optimal_slope = Player_results_logloss$best_slope
 
 
 
-center_value <- mean(BatterWithPitcher$GamePerformance, na.rm = TRUE)
+Player_center_value <- mean(Player_BatterWithPitcher$GamePerformance, na.rm = TRUE)
 
-logistic_score <- function(x, center = center_value, slope = optimal_slope) {
+Player_logistic_score <- function(x, center = Player_center_value, slope = Player_optimal_slope) {
   1 / (1 + exp(-slope * (x - center)))
 }
 
-BatterWithPitcher <- BatterWithPitcher %>%
-  mutate(performance_score = logistic_score(GamePerformance))
+Player_BatterWithPitcher <- Player_BatterWithPitcher %>%
+  mutate(performance_score = Player_logistic_score(GamePerformance))
 
 
 # === ELO SYSTEM === #
-# --- Elo Update Setup ---
 K <- 12.6
-elo_log <- list()
+Player_elo_log <- list()
 
-# Copy elos to update during loop
-elo_batters <- batter_elos %>% rename(batter_pk = player_pk)
-elo_pitchers <- pitcher_elos %>% rename(pitcher_pk = player_pk)
+Player_elo_batters <- Player_batter_elos %>% rename(batter_pk = player_pk)
+Player_elo_pitchers <- Player_pitcher_elos %>% rename(pitcher_pk = player_pk)
 
-total <- nrow(BatterWithPitcher)
+total <- nrow(Player_BatterWithPitcher)
 
-# --- Elo Update Loop ---
 for (i in 1:total) {
-  row <- BatterWithPitcher[i, ]
+  row <- Player_BatterWithPitcher[i, ]
   b_id <- row$batter_pk
   p_id <- row$pitcher_pk
   
-  b_index <- match(b_id, elo_batters$batter_pk)
-  p_index <- match(p_id, elo_pitchers$pitcher_pk)
+  b_index <- match(b_id, Player_elo_batters$batter_pk)
+  p_index <- match(p_id, Player_elo_pitchers$pitcher_pk)
   
   if (is.na(b_index) || is.na(p_index) || is.na(row$performance_score)) next
   
-  b_rating <- elo_batters$current_elo[b_index]
-  p_rating <- elo_pitchers$current_elo[p_index]
+  b_rating <- Player_elo_batters$current_elo[b_index]
+  p_rating <- Player_elo_pitchers$current_elo[p_index]
   outcome <- row$performance_score
   
-  # Expected outcome for batter
   e_batter <- 1 / (1 + 10^((p_rating - b_rating) / 400))
   delta <- K * (outcome - e_batter)
   
-  # Update ratings
-  elo_batters$current_elo[b_index] <- b_rating + delta
-  elo_pitchers$current_elo[p_index] <- p_rating - delta
-  
-  # Log result
-  elo_log[[i]] <- data.frame(
+  Player_elo_batters$current_elo[b_index] <- b_rating + delta
+  Player_elo_pitchers$current_elo[p_index] <- p_rating - delta
+
+
+  Player_elo_log[[i]] <- data.frame(
     game_pk = row$game_pk,
     date = row$Date,
     batter_pk = b_id,
@@ -530,19 +522,138 @@ for (i in 1:total) {
   }
 }
 
-# --- Output Log and Final Elo Ratings ---
-EloLog <- bind_rows(elo_log)
+PlayerEloLog <- bind_rows(Player_elo_log)
 
-FinalEloRatings <- bind_rows(
-  elo_batters %>% rename(player_pk = batter_pk),
-  elo_pitchers %>% rename(player_pk = pitcher_pk)
+PlayerFinalEloRatings <- bind_rows(
+  Player_elo_batters %>% rename(player_pk = batter_pk),
+  Player_elo_pitchers %>% rename(player_pk = pitcher_pk)
 )
 
-FinalEloWithNames <- FinalEloRatings %>%
+PlayerFinalEloWithNames <- PlayerFinalEloRatings %>%
   left_join(Rosters %>% select(player_pk, person_full_name, team_name, position_name),
             by = "player_pk") %>%
   distinct(player_pk, .keep_all = TRUE)
 
 
+# ==================================================================================== #
+#                                   TEAM ELO SYSTEM       
+# ==================================================================================== #
+
+initial_elo <- 1500
+Team_Team_team_elos <- TeamList %>%
+  select(team_id = id) %>%
+  mutate(current_elo = initial_elo)
+
+Team_expected_result <- function(elo_a, elo_b) {
+  1 / (1 + 10 ^ ((elo_b - elo_a) / 400))
+}
+
+K <- 20 
+TeamEloLog <- list()
+
+for (i in 1:nrow(GameInformation)) {
+  row <- GameInformation[i, ]
+  
+  if (is.na(row$teams.home.score) || is.na(row$teams.away.score)) next
+  
+  home_team <- row$teams.home.team.id
+  away_team <- row$teams.away.team.id
+  
+  elo_home <- Team_Team_team_elos$current_elo[Team_Team_team_elos$team_id == home_team]
+  elo_away <- Team_Team_team_elos$current_elo[Team_Team_team_elos$team_id == away_team]
+  
+  expected_home <- Team_expected_result(elo_home, elo_away)
+  outcome_home <- ifelse(row$teams.home.score > row$teams.away.score, 1,
+                         ifelse(row$teams.home.score < row$teams.away.score, 0, 0.5))
+  
+  delta_home <- K * (outcome_home - expected_home)
+  delta_away <- -delta_home
+  
+  Team_Team_team_elos$current_elo[Team_Team_team_elos$team_id == home_team] <- elo_home + delta_home
+  Team_Team_team_elos$current_elo[Team_Team_team_elos$team_id == away_team] <- elo_away + delta_away
+  
+  TeamEloLog[[i]] <- data.frame(
+    game_pk = row$game_pk,
+    date = row$officialDate,
+    home_team_id = home_team,
+    away_team_id = away_team,
+    home_score = row$teams.home.score,
+    away_score = row$teams.away.score,
+    home_elo_before = elo_home,
+    away_elo_before = elo_away,
+    home_elo_after = elo_home + delta_home,
+    away_elo_after = elo_away + delta_away,
+    outcome_home = outcome_home,
+    expected_home = expected_home,
+    elo_delta = delta_home
+  )
+}
 
 
+TeamEloLog <- bind_rows(TeamEloLog)
+
+
+# === Choose Team ID ===
+Team_plot_id <- 112   # Chicago Cubs
+
+Team_plot_name <- TeamList %>% filter(id == Team_plot_id) %>% pull(name)
+
+# === Prepare Base Data ===
+Team_team_elo <- TeamEloLog %>%
+  filter(home_team_id == Team_plot_id | away_team_id == Team_plot_id) %>%
+  mutate(
+    Team_team_elo = ifelse(home_team_id == Team_plot_id, home_elo_after, away_elo_after),
+    opponent_id = ifelse(home_team_id == Team_plot_id, away_team_id, home_team_id),
+    team_score = ifelse(home_team_id == Team_plot_id, home_score, away_score),
+    opponent_score = ifelse(home_team_id == Team_plot_id, away_score, home_score),
+    score_label = paste0(team_score, "–", opponent_score),
+    outcome = case_when(
+      team_score > opponent_score ~ "Win",
+      team_score < opponent_score ~ "Loss",
+      TRUE ~ "Tie"
+    )
+  ) %>%
+  left_join(TeamList %>% select(id, opponent_abbr = abbreviation), by = c("opponent_id" = "id")) %>%
+  arrange(as.Date(date)) %>%
+  mutate(frame = row_number())  # For animation
+
+# === Build Line & Label Histories ===
+
+Team_line_history <- do.call(rbind, lapply(1:nrow(Team_team_elo), function(i) {
+  Team_team_elo[1:i, ] %>% mutate(frame = i)
+}))
+
+Team_label_history <- Team_line_history  # same structure
+
+# === Create Animated Plot ===
+Team_plot <- ggplot() +
+  geom_line(data = Team_line_history, aes(x = as.Date(date), y = Team_team_elo, group = 1), color = "#1f1f1f", size = 1.1) +
+  
+  geom_point(data = Team_line_history, aes(x = as.Date(date), y = Team_team_elo), color = "#1f1f1f", size = 2) +
+  
+  geom_label_repel(
+    data = Team_label_history,
+    aes(x = as.Date(date), y = Team_team_elo, label = paste(opponent_abbr, score_label), fill = outcome, group = interaction(date, opponent_abbr)),
+    size = 3.2,
+    color = "white",
+    fontface = "bold",
+    show.legend = FALSE,
+    max.overlaps = 50,
+    seed = 42
+  ) +
+  
+  scale_fill_manual(values = c("Win" = "#1b9e77", "Loss" = "#d95f02", "Tie" = "gray50")) +
+  
+  labs(
+    title = paste("📈 Elo Trajectory for", Team_plot_name),
+    subtitle = "Line shows Elo change | Labels accumulate with score and result",
+    x = "Date",
+    y = "Elo Rating",
+    fill = "Game Outcome"
+  ) +
+  theme_minimal(base_size = 14) +
+  
+  transition_manual(frame)
+
+# === Render Animation ===
+animate(Team_plot, width = 900, height = 600, fps = 10, duration = 6, renderer = gifski_renderer())
