@@ -10,6 +10,7 @@ library(lubridate)
 library(ggplot2)
 library(ggrepel)
 library(gganimate)
+library(scales)
 
 # ================ #
 # Team Information
@@ -394,7 +395,7 @@ Player_pitcher_elos <- Player_BatterWithPitcher %>%
 
 # === SLOPE TUNING FUNCTION === #
 
-Player_tune_logistic_slope_logloss <- function(Player_BatterWithPitcher, Player_batter_elos_raw, Player_pitcher_elos_raw, slope_range = seq(1, 10.0, by = 0.1), K = 40, verbose = TRUE) {
+Player_tune_logistic_slope_logloss <- function(Player_BatterWithPitcher, Player_batter_elos_raw, Player_pitcher_elos_raw, slope_range = seq(1.0, 100.0, by = 1), K = 50, verbose = TRUE) {
   
   Player_center_value <- mean(Player_BatterWithPitcher$GamePerformanceRate, na.rm = TRUE)
   if (verbose) cat(sprintf("📊 Logistic center (mean GamePerformanceRate): %.3f\n", Player_center_value))
@@ -475,7 +476,7 @@ Player_BatterWithPitcher <- Player_BatterWithPitcher %>%
   mutate(performance_score = Player_logistic_score(GamePerformanceRate))
 
 # === ELO SYSTEM (UPDATED) === #
-K <- 40
+K <- 50
 Player_elo_log <- list()
 
 # Reinitialize Elo ratings for involved batters and pitchers
@@ -545,13 +546,144 @@ PlayerFinalEloWithNames <- PlayerFinalEloRatings %>%
 cat("📊 Pitchers updated:", length(unique(PlayerEloLog$pitcher_pk)), "\n")
 cat("📊 Batters updated:", length(unique(PlayerEloLog$batter_pk)), "\n")
 
+player_elo_csv_path <- file.path(export_dir, "PlayerElo.csv")
+write_csv(PlayerFinalEloWithNames, player_elo_csv_path)
+cat("📂 Player Elos: ", player_elo_csv_path, "\n")
+
+# ==================================================================================== #
+#             GRID SEARCH: Optimize K, Max Cap, Decay Rate, Floor using RMSE
+# ==================================================================================== #
+
+# Define parameter ranges
+K_vals <- seq(20,65,15)
+cap_vals <- seq(40,75,15)
+decay_rates <- seq(0.8, 0.9, 0.025)
+floor_vals <- seq(5, 15, 5)
+
+results <- data.frame()
+total_iterations <- length(K_vals) * length(cap_vals) * length(decay_rates) * length(floor_vals)
+iteration <- 0
+
+# Loop through all combinations
+for (K in K_vals) {
+  for (cap in cap_vals) {
+    for (decay in decay_rates) {
+      for (floor_val in floor_vals) {
+        iteration <- iteration + 1
+        cat(sprintf("Processing %d of %d: K=%d, cap=%d, decay=%.2f, floor=%d\n", 
+                    iteration, total_iterations, K, cap, decay, floor_val))
+        
+        elo_table <- TeamList %>% select(team_id = id) %>% mutate(current_elo = 1000)
+        elo_log <- list()
+        
+        for (i in 1:nrow(GameInformation)) {
+          row <- GameInformation[i, ]
+          if (is.na(row$teams.home.score) || is.na(row$teams.away.score)) next
+          
+          home <- row$teams.home.team.id
+          away <- row$teams.away.team.id
+          elo_h <- elo_table$current_elo[elo_table$team_id == home]
+          elo_a <- elo_table$current_elo[elo_table$team_id == away]
+          
+          expected <- 1 / (1 + 10 ^ ((elo_a - elo_h) / 400))
+          outcome <- ifelse(row$teams.home.score > row$teams.away.score, 1, 
+                            ifelse(row$teams.home.score < row$teams.away.score, 0, 0.5))
+          
+          margin <- abs(row$teams.home.score - row$teams.away.score)
+          margin_multiplier <- log(margin + 1)
+          season_progress <- i / nrow(GameInformation)
+          dyn_cap <- max(cap * (1 - decay * season_progress), floor_val)
+          
+          delta <- K * margin_multiplier * (outcome - expected)
+          delta <- max(min(delta, dyn_cap), -dyn_cap)
+          
+          elo_table$current_elo[elo_table$team_id == home] <- elo_h + delta
+          elo_table$current_elo[elo_table$team_id == away] <- elo_a - delta
+          
+          elo_log[[i]] <- data.frame(
+            home_team_id = home,
+            away_team_id = away,
+            home_score = row$teams.home.score,
+            away_score = row$teams.away.score,
+            home_elo_after = elo_h + delta,
+            away_elo_after = elo_a - delta,
+            outcome_home = outcome,
+            home_elo_before = elo_h,
+            away_elo_before = elo_a
+          )
+        }
+        
+        elo_df <- bind_rows(elo_log)
+        
+        final_summary <- elo_df %>%
+          transmute(team_id = home_team_id, result = outcome_home, elo_after = home_elo_after) %>%
+          bind_rows(
+            elo_df %>% transmute(team_id = away_team_id, result = 1 - outcome_home, elo_after = away_elo_after)
+          ) %>%
+          group_by(team_id) %>%
+          summarise(
+            win_pct = mean(result),
+            final_elo = last(elo_after),
+            .groups = "drop"
+          ) %>%
+          left_join(TeamList %>% select(team_id = id, team_name = name), by = "team_id")
+        
+        # Correlation with opponent Elo strength
+        opp_strength <- elo_df %>%
+          transmute(team_id = home_team_id, opponent_elo = away_elo_before) %>%
+          bind_rows(
+            elo_df %>% transmute(team_id = away_team_id, opponent_elo = home_elo_before)
+          ) %>%
+          group_by(team_id) %>%
+          summarise(avg_opp_elo = mean(opponent_elo), .groups = "drop")
+        
+        final_summary <- final_summary %>% left_join(opp_strength, by = "team_id")
+        
+        model <- lm(final_elo ~ win_pct, data = final_summary)
+        rmse <- sqrt(mean((final_summary$final_elo - predict(model))^2))
+        r2 <- summary(model)$r.squared
+        opp_corr <- cor(final_summary$final_elo, final_summary$avg_opp_elo)
+        
+        results <- bind_rows(results, data.frame(K, cap, decay, floor_val, rmse, r2, opp_corr))
+      }
+    }
+  }
+}
+
+# Normalize RMSE and Opponent Correlation
+results_scaled <- results %>%
+  mutate(
+    rmse_scaled = (rmse - min(rmse)) / (max(rmse) - min(rmse)),  # lower is better
+    opp_scaled = (abs(opp_corr) - min(abs(opp_corr))) / (max(abs(opp_corr)) - min(abs(opp_corr)))  # higher is better
+  ) %>%
+  mutate(
+    composite_score = 0.6 * (1 - rmse_scaled) + 0.4 * opp_scaled
+  ) %>%
+  arrange(desc(composite_score))
+
+
+View(results_scaled)
+
+
+TeamEloParameterPlot = ggplot(results, aes(x = r2, y = rmse, label = K)) +
+  geom_point(aes(color = as.factor(K)), size = 3) +
+  geom_text(vjust = 1.5, size = 3) +
+  labs(title = "RMSE vs R²: Grid Search Results",
+       x = "R-squared (final_elo ~ win_pct)",
+       y = "RMSE",
+       color = "K value") +
+  theme_minimal()
+
+TeamEloParameterPlot
 
 
 # ==================================================================================== #
-#                                   TEAM ELO SYSTEM       
+#                                TEAM ELO SYSTEM
 # ==================================================================================== #
 
-initial_elo <- 1500
+#= Baseline Elo =#
+initial_elo <- 1000
+K <- results_scaled$K
 Team_Team_team_elos <- TeamList %>%
   select(team_id = id) %>%
   mutate(current_elo = initial_elo)
@@ -560,12 +692,10 @@ Team_expected_result <- function(elo_a, elo_b) {
   1 / (1 + 10 ^ ((elo_b - elo_a) / 400))
 }
 
-K <- 20 
 TeamEloLog <- list()
 
 for (i in 1:nrow(GameInformation)) {
   row <- GameInformation[i, ]
-  
   if (is.na(row$teams.home.score) || is.na(row$teams.away.score)) next
   
   home_team <- row$teams.home.team.id
@@ -578,11 +708,52 @@ for (i in 1:nrow(GameInformation)) {
   outcome_home <- ifelse(row$teams.home.score > row$teams.away.score, 1,
                          ifelse(row$teams.home.score < row$teams.away.score, 0, 0.5))
   
-  delta_home <- K * (outcome_home - expected_home)
+  # Elo Adjustment: Blowout = greater delta elo
+  margin <- abs(row$teams.home.score - row$teams.away.score)
+  margin_multiplier <- log(margin + 1)
+  
+  
+  # Base Delta Elo 
+  delta_home <- K * margin_multiplier * (outcome_home - expected_home)
+  
+  # Win streak dampening (3+ wins)
+  if (i >= 5) {
+    last_5 <- do.call(rbind, tail(TeamEloLog, 5))
+    team_recent <- last_5 %>% filter(home_team_id == home_team)
+    if (nrow(team_recent) >= 3 && sum(team_recent$outcome_home == 1) >= 3) {
+      delta_home <- delta_home * 0.8
+    }
+  }
+  
+  # Loss streak penalty (3+ losses)
+  if (i >= 5) {
+    last_5 <- do.call(rbind, tail(TeamEloLog, 5))
+    team_recent <- last_5 %>% filter(home_team_id == home_team)
+    if (nrow(team_recent) >= 3 && sum(team_recent$outcome_home == 0) >= 3) {
+      delta_home <- delta_home * 1.15
+    }
+  }
+  
+  # Penalize for losing badly to weak opponent
+  if (outcome_home == 0 && elo_away < 1000 && margin >= 5) {
+    delta_home <- delta_home * 1.25
+  }
+  
+  # === Season Progress (used for dampening late season surges)
+  season_progress <- i / nrow(GameInformation)
+  dynamic_cap <- max(results_scaled$cap * (1 - results_scaled$decay * season_progress), results_scaled$floor_val)
+  
+  delta_home <- max(min(delta_home, dynamic_cap), -dynamic_cap)
   delta_away <- -delta_home
   
+  # === Update Elo ratings
   Team_Team_team_elos$current_elo[Team_Team_team_elos$team_id == home_team] <- elo_home + delta_home
   Team_Team_team_elos$current_elo[Team_Team_team_elos$team_id == away_team] <- elo_away + delta_away
+  
+  # === Regression toward mean every 15 games
+  if (i %% 15 == 0) {
+    Team_Team_team_elos$current_elo <- Team_Team_team_elos$current_elo * 0.985 + initial_elo * 0.015
+  }
   
   TeamEloLog[[i]] <- data.frame(
     game_pk = row$game_pk,
@@ -601,16 +772,26 @@ for (i in 1:nrow(GameInformation)) {
   )
 }
 
-
 TeamEloLog <- bind_rows(TeamEloLog)
 
+# Calculate average opponent Elo before each game
+opponent_strength <- TeamEloLog %>%
+  transmute(team_id = home_team_id, opponent_elo = away_elo_before) %>%
+  bind_rows(
+    TeamEloLog %>%
+      transmute(team_id = away_team_id, opponent_elo = home_elo_before)
+  ) %>%
+  group_by(team_id) %>%
+  summarise(avg_opp_elo = mean(opponent_elo), .groups = "drop")
 
-# === Choose Team ID ===
-Team_plot_id <- 112   # Chicago Cubs
 
+# ==================================================================================== #
+#                        ELO + WIN RATIO PLOT FOR INDIVIDUAL TEAM
+# ==================================================================================== #
+
+Team_plot_id <- 112   # e.g. Yankees
 Team_plot_name <- TeamList %>% filter(id == Team_plot_id) %>% pull(name)
 
-# === Prepare Base Data ===
 Team_team_elo <- TeamEloLog %>%
   filter(home_team_id == Team_plot_id | away_team_id == Team_plot_id) %>%
   mutate(
@@ -623,21 +804,53 @@ Team_team_elo <- TeamEloLog %>%
       team_score > opponent_score ~ "Win",
       team_score < opponent_score ~ "Loss",
       TRUE ~ "Tie"
-    )
+    ),
+    win = ifelse(outcome == "Win", 1, 0),
+    loss = ifelse(outcome == "Loss", 1, 0),
+    cum_win = cumsum(win),
+    cum_loss = cumsum(loss),
+    win_ratio = cum_win / (cum_win + cum_loss),
+    win_ratio_scaled = 500 + win_ratio * 1000
   ) %>%
   left_join(TeamList %>% select(id, opponent_abbr = abbreviation), by = c("opponent_id" = "id")) %>%
   arrange(as.Date(date)) %>%
-  mutate(frame = row_number())  # For animation
+  mutate(frame = row_number())
 
-# === Build Line & Label Histories ===
+# === Plot Final
+final_point <- Team_team_elo %>%
+  arrange(as.Date(date)) %>%
+  slice_tail(n = 1)
 
+# Elo over time
+ggplot(Team_team_elo, aes(x = as.Date(date))) +
+  geom_line(aes(y = Team_team_elo), color = "#1f1f1f", size = 1.1) +
+  geom_line(aes(y = win_ratio_scaled), color = "#1b9e77", linetype = "dashed", size = 1) +
+  geom_text(data = final_point,
+            aes(y = Team_team_elo, label = paste0("Elo: ", round(Team_team_elo))),
+            hjust = 1.1, vjust = -5.1, color = "#1f1f1f", fontface = "bold") +
+  geom_text(data = final_point,
+            aes(y = win_ratio_scaled, label = paste0("Win Ratio: ", scales::percent(win_ratio))),
+            hjust = 1.1, vjust = -8.1, color = "#1b9e77", fontface = "bold") +
+  scale_y_continuous(
+    name = "Elo Rating",
+    limits = c(500, 1500),
+    sec.axis = sec_axis(~ (. - 500) / 1000, name = "Win Ratio", labels = percent_format())
+  ) +
+  scale_x_date(expand = expansion(mult = c(0.01, 0.05))) +
+  labs(
+    title = paste("📈 Elo & Win Ratio over Time for", Team_plot_name),
+    subtitle = "Solid = Elo | Dashed = Win Ratio",
+    x = "Date", y = "Elo Rating"
+  ) +
+  theme_minimal(base_size = 14)
+
+# Animated Plot over Time
 Team_line_history <- do.call(rbind, lapply(1:nrow(Team_team_elo), function(i) {
   Team_team_elo[1:i, ] %>% mutate(frame = i)
 }))
 
 Team_label_history <- Team_line_history  # same structure
 
-# === Create Animated Plot ===
 Team_plot <- ggplot() +
   geom_line(data = Team_line_history, aes(x = as.Date(date), y = Team_team_elo, group = 1), color = "#1f1f1f", size = 1.1) +
   
@@ -669,3 +882,108 @@ Team_plot <- ggplot() +
 
 # === Render Animation ===
 animate(Team_plot, width = 900, height = 600, fps = 10, duration = 6, renderer = gifski_renderer())
+
+
+# ==================================================================================== #
+#                         FINAL TEAM SUMMARY TABLE FOR RANKING
+# ==================================================================================== #
+
+TeamFinalSummary <- TeamEloLog %>%
+  transmute(team_id = home_team_id, result = outcome_home, elo_after = home_elo_after) %>%
+  bind_rows(
+    TeamEloLog %>% transmute(team_id = away_team_id, result = 1 - outcome_home, elo_after = away_elo_after)
+  ) %>%
+  group_by(team_id) %>%
+  summarise(
+    games_played = n(),
+    wins = sum(result == 1),
+    losses = sum(result == 0),
+    win_pct = round(wins / games_played, 3),
+    final_elo = last(elo_after),
+    .groups = "drop"
+  ) %>%
+  left_join(TeamList %>% select(team_id = id, team_name = name), by = "team_id") %>%
+  left_join(opp_strength, by = "team_id") %>%
+  select(team_id, team_name, games_played, wins, losses, win_pct, final_elo, avg_opp_elo) %>%
+  arrange(desc(final_elo))
+
+View(TeamFinalSummary)
+
+# Final Elo vs Win Percentage 
+ggplot(TeamFinalSummary, aes(x = win_pct, y = final_elo)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = FALSE, color = "darkgreen") +
+  geom_text(aes(label = team_name), vjust = -1.1, size = 3) +
+  labs(title = "Final Elo vs Win Percentage",
+       x = "Win Percentage",
+       y = "Final Elo") +
+  theme_minimal(base_size = 14)
+
+# Fit linear model
+elo_model <- lm(final_elo ~ win_pct, data = TeamFinalSummary)
+
+# Calculate RMSE
+rmse <- sqrt(mean((TeamFinalSummary$final_elo - predict(elo_model))^2))
+print(paste("RMSE:", round(rmse, 2)))
+
+# Get R-squared
+r_squared <- summary(elo_model)$r.squared
+print(paste("R-squared:", round(r_squared, 4)))
+
+
+
+# ================================================ #
+# BUILD GAME-LEVEL DATASET FOR PREDICTIVE MODELING
+# ================================================ #
+
+# Base Table
+GamePredictions <- GameInformation %>%
+  select(
+    game_pk,
+    date = officialDate,
+    home_team_id = teams.home.team.id,
+    home_team_abbr = home_team_abbr,
+    away_team_id = teams.away.team.id,
+    away_team_abbr = away_team_abbr,
+    home_score = teams.home.score,
+    away_score = teams.away.score
+  ) %>%
+  filter(!is.na(home_score) & !is.na(away_score)) %>%
+  mutate(home_win = as.integer(home_score > away_score))
+
+# Team's ELO 
+GamePredictions <- GamePredictions %>%
+  left_join(TeamEloLog %>% select(game_pk, home_elo_before, away_elo_before), by = "game_pk") %>%
+  mutate(elo_diff = home_elo_before - away_elo_before)
+
+# Team's Average Batting ELO
+batter_elos <- PlayerEloLog %>%
+  select(game_pk, batter_pk, batter_elo_before) %>%
+  distinct(game_pk, batter_pk, .keep_all = TRUE)
+
+BatterWithTeam <- BatterGameLogs %>% select(game_pk, player_pk, Team)
+BatterWithTeam <- BatterWithTeam %>%
+  left_join(batter_elos, by = c("game_pk", "player_pk" = "batter_pk"))
+
+average_elo_by_player <- BatterWithTeam %>%
+  group_by(player_pk) %>%
+  summarise(avg_elo = mean(batter_elo_before, na.rm = TRUE), .groups = "drop")
+
+BatterWithTeam <- BatterWithTeam %>%
+  left_join(average_elo_by_player, by = c("player_pk")) %>%
+  mutate(batter_elo_before = ifelse(is.na(batter_elo_before), avg_elo, batter_elo_before)) %>%
+  select(-avg_elo)  # Clean up
+
+batter_avg <- BatterWithTeam %>%
+  group_by(game_pk, Team) %>%
+  summarise(avg_batter_elo = mean(batter_elo_before, na.rm = TRUE), .groups = "drop")
+
+GamePredictions <- GamePredictions %>%
+  left_join(batter_avg %>% rename(avg_batter_elo_home = avg_batter_elo), by = c("game_pk", "home_team_abbr" = "Team")) %>%
+  left_join(batter_avg %>% rename(avg_batter_elo_away = avg_batter_elo), by = c("game_pk", "away_team_abbr" = "Team")) %>%
+  mutate(batter_elo_diff = avg_batter_elo_home - avg_batter_elo_away)
+
+
+model <- glm(home_win ~ elo_diff, 
+             data = GamePredictions, family = "binomial")
+
