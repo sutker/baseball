@@ -1,9 +1,0 @@
-{% extends "base.html" %}
-{% block content %}
-<h2>Edit Note</h2>
-<form method="post">
-    <textarea name="note" required>{{ note.content }}</textarea><br>
-    <button type="submit">Update</button>
-</form>
-<a href="{{ url_for('dashboard') }}">Cancel</a>
-{% endblock %}
