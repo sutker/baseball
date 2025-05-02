@@ -1,0 +1,70 @@
+2025-04-30 12:58:31 Starting Data and Plot Exports
+Loading data from previous scripts...
+✅ Loaded TeamFinalSummary
+✅ Loaded TeamFinalSummary2025
+❌ Failed to load PlayerFinalEloWithNames2025: cannot open the connection
+✅ Loaded TrainingDataClean
+✅ Loaded TrainingDataClean2025
+✅ Loaded TeamEloLog
+✅ Loaded TeamEloLog2025
+❌ Failed to load PlayerEloLog2025: cannot open the connection
+✅ Loaded results_scaled
+✅ Loaded TeamEloParameterPlot
+✅ Loaded TeamPitchingStatistics2025
+✅ Loaded TeamBattingStatistics2025
+✅ Loaded TeamFieldingStatistics2025
+✅ Loaded TeamBattingStatistics2024
+✅ Loaded TeamPitchingStatistics2024
+✅ Loaded glm_home_coefficients
+✅ Loaded glm_away_coefficients
+✅ Loaded Rosters2025
+✅ Loaded GameInformation2025
+✅ Loaded MasterGameInformation
+
+Exporting final summaries...
+✅ Exported TeamFinalSummary.csv
+✅ Exported TeamFinalSummary2025.csv
+❌ Failed to export PlayerFinalEloWithNames2025: object 'PlayerFinalEloWithNames2025' not found
+
+Exporting training data...
+✅ Exported TrainingDataClean.csv
+✅ Exported TrainingDataClean2025.csv
+
+Exporting game logs...
+✅ Exported TeamEloLog.csv
+✅ Exported TeamEloLog2025.csv
+❌ Failed to export PlayerEloLog2025: object 'PlayerEloLog2025' not found
+
+Exporting team statistics 2025...
+✅ Exported TeamPitchingStatistics2025.csv
+✅ Exported TeamBattingStatistics2025.csv
+✅ Exported TeamFieldingStatistics2025.csv
+✅ Exported TeamBattingStatistics2024.csv
+✅ Exported TeamPitchingStatistics2024.csv
+
+Exporting miscellaneous data...
+✅ Exported Rosters2025.csv
+✅ Exported GameInformation2025.csv
+✅ Exported MasterGameInformation.csv
+✅ Exported results_scaled.csv
+✅ Exported glm_home_coefficients.csv
+✅ Exported glm_away_coefficients.csv
+
+Exporting Grid Search performance plot...
+✅ Exported TeamElo_GridSearch_Performance.png
+
+Creating and exporting historical Elo vs Win % plot...
+✅ Exported FinalElo_vs_WinPct_2021_2024.png
+
+Creating and exporting 2025 Elo vs Win % plot...
+✅ Exported FinalElo_vs_WinPct_2025.png
+
+Creating and exporting team Elo progression plots...
+✅ Exported team_elo_progression.png
+
+✅ All exports completed successfully
+
+Export Summary:
+CSV files exported: 19 
+Static plots exported: 4
+Animated plots exported: 1
