@@ -1,0 +1,386 @@
+2025-04-30 12:32:25 Starting grid search
+2025-04-30 12:32:27 Processing 1 of 192: K=20, cap=20, decay=0.70, floor=5
+2025-04-30 12:32:30 Results - RMSE: 82.141, R²: 0.542, Opp Corr: -0.336
+2025-04-30 12:32:30 Processing 2 of 192: K=20, cap=20, decay=0.70, floor=10
+2025-04-30 12:32:33 Results - RMSE: 75.882, R²: 0.547, Opp Corr: -0.330
+2025-04-30 12:32:33 Processing 3 of 192: K=20, cap=20, decay=0.70, floor=15
+2025-04-30 12:32:36 Results - RMSE: 69.973, R²: 0.511, Opp Corr: -0.312
+2025-04-30 12:32:36 Processing 4 of 192: K=20, cap=20, decay=0.70, floor=20
+2025-04-30 12:32:39 Results - RMSE: 63.992, R²: 0.487, Opp Corr: -0.308
+2025-04-30 12:32:39 Processing 5 of 192: K=20, cap=20, decay=0.80, floor=5
+2025-04-30 12:32:43 Results - RMSE: 81.986, R²: 0.537, Opp Corr: -0.318
+2025-04-30 12:32:43 Processing 6 of 192: K=20, cap=20, decay=0.80, floor=10
+2025-04-30 12:32:46 Results - RMSE: 75.882, R²: 0.547, Opp Corr: -0.324
+2025-04-30 12:32:46 Processing 7 of 192: K=20, cap=20, decay=0.80, floor=15
+2025-04-30 12:32:48 Results - RMSE: 69.973, R²: 0.511, Opp Corr: -0.312
+2025-04-30 12:32:48 Processing 8 of 192: K=20, cap=20, decay=0.80, floor=20
+2025-04-30 12:32:50 Results - RMSE: 63.992, R²: 0.487, Opp Corr: -0.308
+2025-04-30 12:32:50 Processing 9 of 192: K=20, cap=20, decay=0.90, floor=5
+2025-04-30 12:32:53 Results - RMSE: 78.744, R²: 0.528, Opp Corr: -0.306
+2025-04-30 12:32:53 Processing 10 of 192: K=20, cap=20, decay=0.90, floor=10
+2025-04-30 12:32:55 Results - RMSE: 75.882, R²: 0.547, Opp Corr: -0.321
+2025-04-30 12:32:55 Processing 11 of 192: K=20, cap=20, decay=0.90, floor=15
+2025-04-30 12:32:58 Results - RMSE: 69.973, R²: 0.511, Opp Corr: -0.311
+2025-04-30 12:32:58 Processing 12 of 192: K=20, cap=20, decay=0.90, floor=20
+2025-04-30 12:33:00 Results - RMSE: 63.992, R²: 0.487, Opp Corr: -0.308
+2025-04-30 12:33:00 Processing 13 of 192: K=20, cap=30, decay=0.70, floor=5
+2025-04-30 12:33:03 Results - RMSE: 75.335, R²: 0.548, Opp Corr: -0.361
+2025-04-30 12:33:03 Processing 14 of 192: K=20, cap=30, decay=0.70, floor=10
+2025-04-30 12:33:05 Results - RMSE: 74.894, R²: 0.548, Opp Corr: -0.357
+2025-04-30 12:33:05 Processing 15 of 192: K=20, cap=30, decay=0.70, floor=15
+2025-04-30 12:33:08 Results - RMSE: 69.973, R²: 0.511, Opp Corr: -0.332
+2025-04-30 12:33:08 Processing 16 of 192: K=20, cap=30, decay=0.70, floor=20
+2025-04-30 12:33:10 Results - RMSE: 63.992, R²: 0.487, Opp Corr: -0.316
+2025-04-30 12:33:10 Processing 17 of 192: K=20, cap=30, decay=0.80, floor=5
+2025-04-30 12:33:12 Results - RMSE: 81.588, R²: 0.542, Opp Corr: -0.358
+2025-04-30 12:33:12 Processing 18 of 192: K=20, cap=30, decay=0.80, floor=10
+2025-04-30 12:33:15 Results - RMSE: 76.009, R²: 0.548, Opp Corr: -0.354
+2025-04-30 12:33:15 Processing 19 of 192: K=20, cap=30, decay=0.80, floor=15
+2025-04-30 12:33:17 Results - RMSE: 69.973, R²: 0.511, Opp Corr: -0.331
+2025-04-30 12:33:17 Processing 20 of 192: K=20, cap=30, decay=0.80, floor=20
+2025-04-30 12:33:20 Results - RMSE: 63.992, R²: 0.487, Opp Corr: -0.314
+2025-04-30 12:33:20 Processing 21 of 192: K=20, cap=30, decay=0.90, floor=5
+2025-04-30 12:33:22 Results - RMSE: 83.734, R²: 0.540, Opp Corr: -0.355
+2025-04-30 12:33:22 Processing 22 of 192: K=20, cap=30, decay=0.90, floor=10
+2025-04-30 12:33:25 Results - RMSE: 75.882, R²: 0.547, Opp Corr: -0.349
+2025-04-30 12:33:25 Processing 23 of 192: K=20, cap=30, decay=0.90, floor=15
+2025-04-30 12:33:27 Results - RMSE: 69.973, R²: 0.511, Opp Corr: -0.330
+2025-04-30 12:33:27 Processing 24 of 192: K=20, cap=30, decay=0.90, floor=20
+2025-04-30 12:33:29 Results - RMSE: 63.992, R²: 0.487, Opp Corr: -0.312
+2025-04-30 12:33:29 Processing 25 of 192: K=20, cap=40, decay=0.70, floor=5
+2025-04-30 12:33:32 Results - RMSE: 71.887, R²: 0.518, Opp Corr: -0.352
+2025-04-30 12:33:32 Processing 26 of 192: K=20, cap=40, decay=0.70, floor=10
+2025-04-30 12:33:34 Results - RMSE: 71.887, R²: 0.518, Opp Corr: -0.352
+2025-04-30 12:33:34 Processing 27 of 192: K=20, cap=40, decay=0.70, floor=15
+2025-04-30 12:33:36 Results - RMSE: 69.900, R²: 0.509, Opp Corr: -0.331
+2025-04-30 12:33:36 Processing 28 of 192: K=20, cap=40, decay=0.70, floor=20
+2025-04-30 12:33:39 Results - RMSE: 63.992, R²: 0.487, Opp Corr: -0.315
+2025-04-30 12:33:39 Processing 29 of 192: K=20, cap=40, decay=0.80, floor=5
+2025-04-30 12:33:41 Results - RMSE: 75.953, R²: 0.547, Opp Corr: -0.367
+2025-04-30 12:33:41 Processing 30 of 192: K=20, cap=40, decay=0.80, floor=10
+2025-04-30 12:33:44 Results - RMSE: 74.718, R²: 0.549, Opp Corr: -0.360
+2025-04-30 12:33:44 Processing 31 of 192: K=20, cap=40, decay=0.80, floor=15
+2025-04-30 12:33:46 Results - RMSE: 70.006, R²: 0.511, Opp Corr: -0.334
+2025-04-30 12:33:46 Processing 32 of 192: K=20, cap=40, decay=0.80, floor=20
+2025-04-30 12:33:48 Results - RMSE: 63.992, R²: 0.487, Opp Corr: -0.316
+2025-04-30 12:33:48 Processing 33 of 192: K=20, cap=40, decay=0.90, floor=5
+2025-04-30 12:33:51 Results - RMSE: 83.475, R²: 0.539, Opp Corr: -0.356
+2025-04-30 12:33:51 Processing 34 of 192: K=20, cap=40, decay=0.90, floor=10
+2025-04-30 12:33:53 Results - RMSE: 75.958, R²: 0.550, Opp Corr: -0.357
+2025-04-30 12:33:53 Processing 35 of 192: K=20, cap=40, decay=0.90, floor=15
+2025-04-30 12:33:56 Results - RMSE: 69.973, R²: 0.511, Opp Corr: -0.333
+2025-04-30 12:33:56 Processing 36 of 192: K=20, cap=40, decay=0.90, floor=20
+2025-04-30 12:33:58 Results - RMSE: 63.992, R²: 0.487, Opp Corr: -0.318
+2025-04-30 12:33:58 Processing 37 of 192: K=20, cap=50, decay=0.70, floor=5
+2025-04-30 12:34:00 Results - RMSE: 68.969, R²: 0.484, Opp Corr: -0.329
+2025-04-30 12:34:00 Processing 38 of 192: K=20, cap=50, decay=0.70, floor=10
+2025-04-30 12:34:02 Results - RMSE: 68.969, R²: 0.484, Opp Corr: -0.329
+2025-04-30 12:34:02 Processing 39 of 192: K=20, cap=50, decay=0.70, floor=15
+2025-04-30 12:34:05 Results - RMSE: 68.969, R²: 0.484, Opp Corr: -0.329
+2025-04-30 12:34:05 Processing 40 of 192: K=20, cap=50, decay=0.70, floor=20
+2025-04-30 12:34:08 Results - RMSE: 63.981, R²: 0.487, Opp Corr: -0.318
+2025-04-30 12:34:08 Processing 41 of 192: K=20, cap=50, decay=0.80, floor=5
+2025-04-30 12:34:10 Results - RMSE: 73.038, R²: 0.528, Opp Corr: -0.367
+2025-04-30 12:34:10 Processing 42 of 192: K=20, cap=50, decay=0.80, floor=10
+2025-04-30 12:34:13 Results - RMSE: 73.038, R²: 0.528, Opp Corr: -0.367
+2025-04-30 12:34:13 Processing 43 of 192: K=20, cap=50, decay=0.80, floor=15
+2025-04-30 12:34:15 Results - RMSE: 70.003, R²: 0.509, Opp Corr: -0.332
+2025-04-30 12:34:15 Processing 44 of 192: K=20, cap=50, decay=0.80, floor=20
+2025-04-30 12:34:17 Results - RMSE: 63.992, R²: 0.487, Opp Corr: -0.318
+2025-04-30 12:34:17 Processing 45 of 192: K=20, cap=50, decay=0.90, floor=5
+2025-04-30 12:34:19 Results - RMSE: 80.612, R²: 0.538, Opp Corr: -0.366
+2025-04-30 12:34:19 Processing 46 of 192: K=20, cap=50, decay=0.90, floor=10
+2025-04-30 12:34:22 Results - RMSE: 75.391, R²: 0.552, Opp Corr: -0.360
+2025-04-30 12:34:22 Processing 47 of 192: K=20, cap=50, decay=0.90, floor=15
+2025-04-30 12:34:25 Results - RMSE: 70.011, R²: 0.511, Opp Corr: -0.335
+2025-04-30 12:34:25 Processing 48 of 192: K=20, cap=50, decay=0.90, floor=20
+2025-04-30 12:34:27 Results - RMSE: 63.992, R²: 0.487, Opp Corr: -0.316
+2025-04-30 12:34:27 Processing 49 of 192: K=40, cap=20, decay=0.70, floor=5
+2025-04-30 12:34:30 Results - RMSE: 109.055, R²: 0.536, Opp Corr: -0.313
+2025-04-30 12:34:30 Processing 50 of 192: K=40, cap=20, decay=0.70, floor=10
+2025-04-30 12:34:32 Results - RMSE: 109.519, R²: 0.551, Opp Corr: -0.331
+2025-04-30 12:34:32 Processing 51 of 192: K=40, cap=20, decay=0.70, floor=15
+2025-04-30 12:34:34 Results - RMSE: 105.429, R²: 0.536, Opp Corr: -0.334
+2025-04-30 12:34:34 Processing 52 of 192: K=40, cap=20, decay=0.70, floor=20
+2025-04-30 12:34:37 Results - RMSE: 98.621, R²: 0.505, Opp Corr: -0.345
+2025-04-30 12:34:37 Processing 53 of 192: K=40, cap=20, decay=0.80, floor=5
+2025-04-30 12:34:40 Results - RMSE: 100.089, R²: 0.513, Opp Corr: -0.279
+2025-04-30 12:34:40 Processing 54 of 192: K=40, cap=20, decay=0.80, floor=10
+2025-04-30 12:34:42 Results - RMSE: 109.519, R²: 0.551, Opp Corr: -0.327
+2025-04-30 12:34:42 Processing 55 of 192: K=40, cap=20, decay=0.80, floor=15
+2025-04-30 12:34:45 Results - RMSE: 105.429, R²: 0.536, Opp Corr: -0.335
+2025-04-30 12:34:45 Processing 56 of 192: K=40, cap=20, decay=0.80, floor=20
+2025-04-30 12:34:47 Results - RMSE: 98.621, R²: 0.505, Opp Corr: -0.345
+2025-04-30 12:34:47 Processing 57 of 192: K=40, cap=20, decay=0.90, floor=5
+2025-04-30 12:34:49 Results - RMSE: 89.057, R²: 0.506, Opp Corr: -0.257
+2025-04-30 12:34:49 Processing 58 of 192: K=40, cap=20, decay=0.90, floor=10
+2025-04-30 12:34:52 Results - RMSE: 109.519, R²: 0.551, Opp Corr: -0.323
+2025-04-30 12:34:52 Processing 59 of 192: K=40, cap=20, decay=0.90, floor=15
+2025-04-30 12:34:55 Results - RMSE: 105.429, R²: 0.536, Opp Corr: -0.335
+2025-04-30 12:34:55 Processing 60 of 192: K=40, cap=20, decay=0.90, floor=20
+2025-04-30 12:34:57 Results - RMSE: 98.621, R²: 0.505, Opp Corr: -0.345
+2025-04-30 12:34:57 Processing 61 of 192: K=40, cap=30, decay=0.70, floor=5
+2025-04-30 12:35:00 Results - RMSE: 111.210, R²: 0.553, Opp Corr: -0.365
+2025-04-30 12:35:00 Processing 62 of 192: K=40, cap=30, decay=0.70, floor=10
+2025-04-30 12:35:03 Results - RMSE: 110.740, R²: 0.555, Opp Corr: -0.367
+2025-04-30 12:35:03 Processing 63 of 192: K=40, cap=30, decay=0.70, floor=15
+2025-04-30 12:35:05 Results - RMSE: 105.429, R²: 0.536, Opp Corr: -0.354
+2025-04-30 12:35:05 Processing 64 of 192: K=40, cap=30, decay=0.70, floor=20
+2025-04-30 12:35:07 Results - RMSE: 98.621, R²: 0.505, Opp Corr: -0.347
+2025-04-30 12:35:08 Processing 65 of 192: K=40, cap=30, decay=0.80, floor=5
+2025-04-30 12:35:10 Results - RMSE: 113.336, R²: 0.540, Opp Corr: -0.350
+2025-04-30 12:35:10 Processing 66 of 192: K=40, cap=30, decay=0.80, floor=10
+2025-04-30 12:35:13 Results - RMSE: 110.975, R²: 0.549, Opp Corr: -0.364
+2025-04-30 12:35:13 Processing 67 of 192: K=40, cap=30, decay=0.80, floor=15
+2025-04-30 12:35:15 Results - RMSE: 105.429, R²: 0.536, Opp Corr: -0.348
+2025-04-30 12:35:15 Processing 68 of 192: K=40, cap=30, decay=0.80, floor=20
+2025-04-30 12:35:18 Results - RMSE: 98.621, R²: 0.505, Opp Corr: -0.345
+2025-04-30 12:35:18 Processing 69 of 192: K=40, cap=30, decay=0.90, floor=5
+2025-04-30 12:35:21 Results - RMSE: 106.543, R²: 0.514, Opp Corr: -0.318
+2025-04-30 12:35:21 Processing 70 of 192: K=40, cap=30, decay=0.90, floor=10
+2025-04-30 12:35:23 Results - RMSE: 109.519, R²: 0.551, Opp Corr: -0.349
+2025-04-30 12:35:23 Processing 71 of 192: K=40, cap=30, decay=0.90, floor=15
+2025-04-30 12:35:26 Results - RMSE: 105.429, R²: 0.536, Opp Corr: -0.344
+2025-04-30 12:35:26 Processing 72 of 192: K=40, cap=30, decay=0.90, floor=20
+2025-04-30 12:35:28 Results - RMSE: 98.621, R²: 0.505, Opp Corr: -0.342
+2025-04-30 12:35:28 Processing 73 of 192: K=40, cap=40, decay=0.70, floor=5
+2025-04-30 12:35:31 Results - RMSE: 107.208, R²: 0.539, Opp Corr: -0.378
+2025-04-30 12:35:31 Processing 74 of 192: K=40, cap=40, decay=0.70, floor=10
+2025-04-30 12:35:33 Results - RMSE: 107.208, R²: 0.539, Opp Corr: -0.378
+2025-04-30 12:35:33 Processing 75 of 192: K=40, cap=40, decay=0.70, floor=15
+2025-04-30 12:35:36 Results - RMSE: 105.026, R²: 0.536, Opp Corr: -0.373
+2025-04-30 12:35:36 Processing 76 of 192: K=40, cap=40, decay=0.70, floor=20
+2025-04-30 12:35:39 Results - RMSE: 98.621, R²: 0.505, Opp Corr: -0.361
+2025-04-30 12:35:39 Processing 77 of 192: K=40, cap=40, decay=0.80, floor=5
+2025-04-30 12:35:41 Results - RMSE: 111.777, R²: 0.552, Opp Corr: -0.382
+2025-04-30 12:35:41 Processing 78 of 192: K=40, cap=40, decay=0.80, floor=10
+2025-04-30 12:35:44 Results - RMSE: 110.527, R²: 0.557, Opp Corr: -0.386
+2025-04-30 12:35:44 Processing 79 of 192: K=40, cap=40, decay=0.80, floor=15
+2025-04-30 12:35:46 Results - RMSE: 105.493, R²: 0.535, Opp Corr: -0.372
+2025-04-30 12:35:46 Processing 80 of 192: K=40, cap=40, decay=0.80, floor=20
+2025-04-30 12:35:49 Results - RMSE: 98.621, R²: 0.505, Opp Corr: -0.360
+2025-04-30 12:35:49 Processing 81 of 192: K=40, cap=40, decay=0.90, floor=5
+2025-04-30 12:35:52 Results - RMSE: 113.817, R²: 0.531, Opp Corr: -0.365
+2025-04-30 12:35:52 Processing 82 of 192: K=40, cap=40, decay=0.90, floor=10
+2025-04-30 12:35:55 Results - RMSE: 111.452, R²: 0.549, Opp Corr: -0.388
+2025-04-30 12:35:55 Processing 83 of 192: K=40, cap=40, decay=0.90, floor=15
+2025-04-30 12:35:57 Results - RMSE: 105.429, R²: 0.536, Opp Corr: -0.367
+2025-04-30 12:35:57 Processing 84 of 192: K=40, cap=40, decay=0.90, floor=20
+2025-04-30 12:36:00 Results - RMSE: 98.621, R²: 0.505, Opp Corr: -0.359
+2025-04-30 12:36:00 Processing 85 of 192: K=40, cap=50, decay=0.70, floor=5
+2025-04-30 12:36:02 Results - RMSE: 101.702, R²: 0.522, Opp Corr: -0.380
+2025-04-30 12:36:02 Processing 86 of 192: K=40, cap=50, decay=0.70, floor=10
+2025-04-30 12:36:05 Results - RMSE: 101.702, R²: 0.522, Opp Corr: -0.380
+2025-04-30 12:36:05 Processing 87 of 192: K=40, cap=50, decay=0.70, floor=15
+2025-04-30 12:36:08 Results - RMSE: 101.702, R²: 0.522, Opp Corr: -0.380
+2025-04-30 12:36:08 Processing 88 of 192: K=40, cap=50, decay=0.70, floor=20
+2025-04-30 12:36:12 Results - RMSE: 98.350, R²: 0.506, Opp Corr: -0.368
+2025-04-30 12:36:12 Processing 89 of 192: K=40, cap=50, decay=0.80, floor=5
+2025-04-30 12:36:14 Results - RMSE: 108.312, R²: 0.546, Opp Corr: -0.389
+2025-04-30 12:36:14 Processing 90 of 192: K=40, cap=50, decay=0.80, floor=10
+2025-04-30 12:36:17 Results - RMSE: 108.312, R²: 0.546, Opp Corr: -0.389
+2025-04-30 12:36:17 Processing 91 of 192: K=40, cap=50, decay=0.80, floor=15
+2025-04-30 12:36:19 Results - RMSE: 105.151, R²: 0.537, Opp Corr: -0.381
+2025-04-30 12:36:19 Processing 92 of 192: K=40, cap=50, decay=0.80, floor=20
+2025-04-30 12:36:22 Results - RMSE: 98.621, R²: 0.505, Opp Corr: -0.369
+2025-04-30 12:36:22 Processing 93 of 192: K=40, cap=50, decay=0.90, floor=5
+2025-04-30 12:36:25 Results - RMSE: 114.439, R²: 0.543, Opp Corr: -0.386
+2025-04-30 12:36:25 Processing 94 of 192: K=40, cap=50, decay=0.90, floor=10
+2025-04-30 12:36:28 Results - RMSE: 111.386, R²: 0.558, Opp Corr: -0.401
+2025-04-30 12:36:28 Processing 95 of 192: K=40, cap=50, decay=0.90, floor=15
+2025-04-30 12:36:30 Results - RMSE: 105.501, R²: 0.535, Opp Corr: -0.383
+2025-04-30 12:36:30 Processing 96 of 192: K=40, cap=50, decay=0.90, floor=20
+2025-04-30 12:36:33 Results - RMSE: 98.621, R²: 0.505, Opp Corr: -0.368
+2025-04-30 12:36:33 Processing 97 of 192: K=60, cap=20, decay=0.70, floor=5
+2025-04-30 12:36:35 Results - RMSE: 118.965, R²: 0.523, Opp Corr: -0.275
+2025-04-30 12:36:35 Processing 98 of 192: K=60, cap=20, decay=0.70, floor=10
+2025-04-30 12:36:38 Results - RMSE: 125.090, R²: 0.548, Opp Corr: -0.307
+2025-04-30 12:36:38 Processing 99 of 192: K=60, cap=20, decay=0.70, floor=15
+2025-04-30 12:36:41 Results - RMSE: 127.527, R²: 0.549, Opp Corr: -0.327
+2025-04-30 12:36:41 Processing 100 of 192: K=60, cap=20, decay=0.70, floor=20
+2025-04-30 12:36:44 Results - RMSE: 124.653, R²: 0.519, Opp Corr: -0.341
+2025-04-30 12:36:44 Processing 101 of 192: K=60, cap=20, decay=0.80, floor=5
+2025-04-30 12:36:47 Results - RMSE: 104.511, R²: 0.505, Opp Corr: -0.239
+2025-04-30 12:36:47 Processing 102 of 192: K=60, cap=20, decay=0.80, floor=10
+2025-04-30 12:36:50 Results - RMSE: 125.090, R²: 0.548, Opp Corr: -0.303
+2025-04-30 12:36:50 Processing 103 of 192: K=60, cap=20, decay=0.80, floor=15
+2025-04-30 12:36:53 Results - RMSE: 127.527, R²: 0.549, Opp Corr: -0.328
+2025-04-30 12:36:53 Processing 104 of 192: K=60, cap=20, decay=0.80, floor=20
+2025-04-30 12:36:55 Results - RMSE: 124.653, R²: 0.519, Opp Corr: -0.341
+2025-04-30 12:36:55 Processing 105 of 192: K=60, cap=20, decay=0.90, floor=5
+2025-04-30 12:36:58 Results - RMSE: 91.807, R²: 0.499, Opp Corr: -0.220
+2025-04-30 12:36:58 Processing 106 of 192: K=60, cap=20, decay=0.90, floor=10
+2025-04-30 12:37:01 Results - RMSE: 125.090, R²: 0.548, Opp Corr: -0.303
+2025-04-30 12:37:01 Processing 107 of 192: K=60, cap=20, decay=0.90, floor=15
+2025-04-30 12:37:04 Results - RMSE: 127.527, R²: 0.549, Opp Corr: -0.329
+2025-04-30 12:37:04 Processing 108 of 192: K=60, cap=20, decay=0.90, floor=20
+2025-04-30 12:37:07 Results - RMSE: 124.653, R²: 0.519, Opp Corr: -0.341
+2025-04-30 12:37:07 Processing 109 of 192: K=60, cap=30, decay=0.70, floor=5
+2025-04-30 12:37:10 Results - RMSE: 130.786, R²: 0.548, Opp Corr: -0.345
+2025-04-30 12:37:10 Processing 110 of 192: K=60, cap=30, decay=0.70, floor=10
+2025-04-30 12:37:12 Results - RMSE: 130.573, R²: 0.549, Opp Corr: -0.347
+2025-04-30 12:37:12 Processing 111 of 192: K=60, cap=30, decay=0.70, floor=15
+2025-04-30 12:37:15 Results - RMSE: 127.527, R²: 0.549, Opp Corr: -0.353
+2025-04-30 12:37:15 Processing 112 of 192: K=60, cap=30, decay=0.70, floor=20
+2025-04-30 12:37:17 Results - RMSE: 124.653, R²: 0.519, Opp Corr: -0.352
+2025-04-30 12:37:17 Processing 113 of 192: K=60, cap=30, decay=0.80, floor=5
+2025-04-30 12:37:20 Results - RMSE: 127.066, R²: 0.531, Opp Corr: -0.319
+2025-04-30 12:37:20 Processing 114 of 192: K=60, cap=30, decay=0.80, floor=10
+2025-04-30 12:37:22 Results - RMSE: 127.718, R²: 0.545, Opp Corr: -0.341
+2025-04-30 12:37:22 Processing 115 of 192: K=60, cap=30, decay=0.80, floor=15
+2025-04-30 12:37:25 Results - RMSE: 127.527, R²: 0.549, Opp Corr: -0.346
+2025-04-30 12:37:25 Processing 116 of 192: K=60, cap=30, decay=0.80, floor=20
+2025-04-30 12:37:27 Results - RMSE: 124.653, R²: 0.519, Opp Corr: -0.349
+2025-04-30 12:37:27 Processing 117 of 192: K=60, cap=30, decay=0.90, floor=5
+2025-04-30 12:37:29 Results - RMSE: 113.304, R²: 0.503, Opp Corr: -0.276
+2025-04-30 12:37:29 Processing 118 of 192: K=60, cap=30, decay=0.90, floor=10
+2025-04-30 12:37:32 Results - RMSE: 125.090, R²: 0.548, Opp Corr: -0.328
+2025-04-30 12:37:32 Processing 119 of 192: K=60, cap=30, decay=0.90, floor=15
+2025-04-30 12:37:34 Results - RMSE: 127.527, R²: 0.549, Opp Corr: -0.342
+2025-04-30 12:37:34 Processing 120 of 192: K=60, cap=30, decay=0.90, floor=20
+2025-04-30 12:37:37 Results - RMSE: 124.653, R²: 0.519, Opp Corr: -0.346
+2025-04-30 12:37:37 Processing 121 of 192: K=60, cap=40, decay=0.70, floor=5
+2025-04-30 12:37:40 Results - RMSE: 128.337, R²: 0.554, Opp Corr: -0.387
+2025-04-30 12:37:40 Processing 122 of 192: K=60, cap=40, decay=0.70, floor=10
+2025-04-30 12:37:42 Results - RMSE: 128.337, R²: 0.554, Opp Corr: -0.387
+2025-04-30 12:37:42 Processing 123 of 192: K=60, cap=40, decay=0.70, floor=15
+2025-04-30 12:37:44 Results - RMSE: 127.177, R²: 0.553, Opp Corr: -0.390
+2025-04-30 12:37:44 Processing 124 of 192: K=60, cap=40, decay=0.70, floor=20
+2025-04-30 12:37:47 Results - RMSE: 124.653, R²: 0.519, Opp Corr: -0.379
+2025-04-30 12:37:47 Processing 125 of 192: K=60, cap=40, decay=0.80, floor=5
+2025-04-30 12:37:49 Results - RMSE: 132.020, R²: 0.547, Opp Corr: -0.371
+2025-04-30 12:37:49 Processing 126 of 192: K=60, cap=40, decay=0.80, floor=10
+2025-04-30 12:37:52 Results - RMSE: 131.392, R²: 0.550, Opp Corr: -0.377
+2025-04-30 12:37:52 Processing 127 of 192: K=60, cap=40, decay=0.80, floor=15
+2025-04-30 12:37:54 Results - RMSE: 127.689, R²: 0.548, Opp Corr: -0.382
+2025-04-30 12:37:54 Processing 128 of 192: K=60, cap=40, decay=0.80, floor=20
+2025-04-30 12:37:57 Results - RMSE: 124.653, R²: 0.519, Opp Corr: -0.373
+2025-04-30 12:37:57 Processing 129 of 192: K=60, cap=40, decay=0.90, floor=5
+2025-04-30 12:37:59 Results - RMSE: 127.914, R²: 0.517, Opp Corr: -0.334
+2025-04-30 12:37:59 Processing 130 of 192: K=60, cap=40, decay=0.90, floor=10
+2025-04-30 12:38:02 Results - RMSE: 128.890, R²: 0.544, Opp Corr: -0.369
+2025-04-30 12:38:02 Processing 131 of 192: K=60, cap=40, decay=0.90, floor=15
+2025-04-30 12:38:04 Results - RMSE: 127.527, R²: 0.549, Opp Corr: -0.371
+2025-04-30 12:38:04 Processing 132 of 192: K=60, cap=40, decay=0.90, floor=20
+2025-04-30 12:38:06 Results - RMSE: 124.653, R²: 0.519, Opp Corr: -0.368
+2025-04-30 12:38:06 Processing 133 of 192: K=60, cap=50, decay=0.70, floor=5
+2025-04-30 12:38:09 Results - RMSE: 125.649, R²: 0.541, Opp Corr: -0.402
+2025-04-30 12:38:09 Processing 134 of 192: K=60, cap=50, decay=0.70, floor=10
+2025-04-30 12:38:11 Results - RMSE: 125.649, R²: 0.541, Opp Corr: -0.402
+2025-04-30 12:38:11 Processing 135 of 192: K=60, cap=50, decay=0.70, floor=15
+2025-04-30 12:38:14 Results - RMSE: 125.649, R²: 0.541, Opp Corr: -0.402
+2025-04-30 12:38:14 Processing 136 of 192: K=60, cap=50, decay=0.70, floor=20
+2025-04-30 12:38:16 Results - RMSE: 124.289, R²: 0.520, Opp Corr: -0.395
+2025-04-30 12:38:16 Processing 137 of 192: K=60, cap=50, decay=0.80, floor=5
+2025-04-30 12:38:18 Results - RMSE: 129.495, R²: 0.555, Opp Corr: -0.403
+2025-04-30 12:38:18 Processing 138 of 192: K=60, cap=50, decay=0.80, floor=10
+2025-04-30 12:38:21 Results - RMSE: 129.495, R²: 0.555, Opp Corr: -0.403
+2025-04-30 12:38:21 Processing 139 of 192: K=60, cap=50, decay=0.80, floor=15
+2025-04-30 12:38:23 Results - RMSE: 127.366, R²: 0.552, Opp Corr: -0.409
+2025-04-30 12:38:23 Processing 140 of 192: K=60, cap=50, decay=0.80, floor=20
+2025-04-30 12:38:26 Results - RMSE: 124.654, R²: 0.519, Opp Corr: -0.396
+2025-04-30 12:38:26 Processing 141 of 192: K=60, cap=50, decay=0.90, floor=5
+2025-04-30 12:38:29 Results - RMSE: 132.996, R²: 0.533, Opp Corr: -0.383
+2025-04-30 12:38:29 Processing 142 of 192: K=60, cap=50, decay=0.90, floor=10
+2025-04-30 12:38:31 Results - RMSE: 132.136, R²: 0.548, Opp Corr: -0.402
+2025-04-30 12:38:31 Processing 143 of 192: K=60, cap=50, decay=0.90, floor=15
+2025-04-30 12:38:34 Results - RMSE: 127.718, R²: 0.548, Opp Corr: -0.405
+2025-04-30 12:38:34 Processing 144 of 192: K=60, cap=50, decay=0.90, floor=20
+2025-04-30 12:38:36 Results - RMSE: 124.653, R²: 0.519, Opp Corr: -0.393
+2025-04-30 12:38:36 Processing 145 of 192: K=80, cap=20, decay=0.70, floor=5
+2025-04-30 12:38:38 Results - RMSE: 123.913, R²: 0.516, Opp Corr: -0.260
+2025-04-30 12:38:38 Processing 146 of 192: K=80, cap=20, decay=0.70, floor=10
+2025-04-30 12:38:41 Results - RMSE: 134.134, R²: 0.544, Opp Corr: -0.297
+2025-04-30 12:38:41 Processing 147 of 192: K=80, cap=20, decay=0.70, floor=15
+2025-04-30 12:38:43 Results - RMSE: 141.726, R²: 0.550, Opp Corr: -0.324
+2025-04-30 12:38:43 Processing 148 of 192: K=80, cap=20, decay=0.70, floor=20
+2025-04-30 12:38:46 Results - RMSE: 140.719, R²: 0.533, Opp Corr: -0.341
+2025-04-30 12:38:46 Processing 149 of 192: K=80, cap=20, decay=0.80, floor=5
+2025-04-30 12:38:49 Results - RMSE: 106.720, R²: 0.500, Opp Corr: -0.225
+2025-04-30 12:38:49 Processing 150 of 192: K=80, cap=20, decay=0.80, floor=10
+2025-04-30 12:38:51 Results - RMSE: 134.134, R²: 0.544, Opp Corr: -0.296
+2025-04-30 12:38:51 Processing 151 of 192: K=80, cap=20, decay=0.80, floor=15
+2025-04-30 12:38:53 Results - RMSE: 141.726, R²: 0.550, Opp Corr: -0.326
+2025-04-30 12:38:53 Processing 152 of 192: K=80, cap=20, decay=0.80, floor=20
+2025-04-30 12:38:56 Results - RMSE: 140.719, R²: 0.533, Opp Corr: -0.341
+2025-04-30 12:38:56 Processing 153 of 192: K=80, cap=20, decay=0.90, floor=5
+2025-04-30 12:38:58 Results - RMSE: 92.580, R²: 0.497, Opp Corr: -0.211
+2025-04-30 12:38:58 Processing 154 of 192: K=80, cap=20, decay=0.90, floor=10
+2025-04-30 12:39:01 Results - RMSE: 134.134, R²: 0.544, Opp Corr: -0.295
+2025-04-30 12:39:01 Processing 155 of 192: K=80, cap=20, decay=0.90, floor=15
+2025-04-30 12:39:03 Results - RMSE: 141.726, R²: 0.550, Opp Corr: -0.327
+2025-04-30 12:39:03 Processing 156 of 192: K=80, cap=20, decay=0.90, floor=20
+2025-04-30 12:39:06 Results - RMSE: 140.719, R²: 0.533, Opp Corr: -0.341
+2025-04-30 12:39:06 Processing 157 of 192: K=80, cap=30, decay=0.70, floor=5
+2025-04-30 12:39:08 Results - RMSE: 142.057, R²: 0.544, Opp Corr: -0.325
+2025-04-30 12:39:08 Processing 158 of 192: K=80, cap=30, decay=0.70, floor=10
+2025-04-30 12:39:10 Results - RMSE: 141.974, R²: 0.545, Opp Corr: -0.328
+2025-04-30 12:39:10 Processing 159 of 192: K=80, cap=30, decay=0.70, floor=15
+2025-04-30 12:39:13 Results - RMSE: 141.726, R²: 0.550, Opp Corr: -0.337
+2025-04-30 12:39:13 Processing 160 of 192: K=80, cap=30, decay=0.70, floor=20
+2025-04-30 12:39:15 Results - RMSE: 140.719, R²: 0.533, Opp Corr: -0.341
+2025-04-30 12:39:15 Processing 161 of 192: K=80, cap=30, decay=0.80, floor=5
+2025-04-30 12:39:18 Results - RMSE: 134.984, R²: 0.524, Opp Corr: -0.290
+2025-04-30 12:39:18 Processing 162 of 192: K=80, cap=30, decay=0.80, floor=10
+2025-04-30 12:39:21 Results - RMSE: 137.194, R²: 0.541, Opp Corr: -0.316
+2025-04-30 12:39:21 Processing 163 of 192: K=80, cap=30, decay=0.80, floor=15
+2025-04-30 12:39:23 Results - RMSE: 141.726, R²: 0.550, Opp Corr: -0.330
+2025-04-30 12:39:23 Processing 164 of 192: K=80, cap=30, decay=0.80, floor=20
+2025-04-30 12:39:25 Results - RMSE: 140.719, R²: 0.533, Opp Corr: -0.338
+2025-04-30 12:39:25 Processing 165 of 192: K=80, cap=30, decay=0.90, floor=5
+2025-04-30 12:39:27 Results - RMSE: 116.104, R²: 0.499, Opp Corr: -0.242
+2025-04-30 12:39:27 Processing 166 of 192: K=80, cap=30, decay=0.90, floor=10
+2025-04-30 12:39:30 Results - RMSE: 134.134, R²: 0.544, Opp Corr: -0.300
+2025-04-30 12:39:30 Processing 167 of 192: K=80, cap=30, decay=0.90, floor=15
+2025-04-30 12:39:33 Results - RMSE: 141.726, R²: 0.550, Opp Corr: -0.325
+2025-04-30 12:39:33 Processing 168 of 192: K=80, cap=30, decay=0.90, floor=20
+2025-04-30 12:39:35 Results - RMSE: 140.719, R²: 0.533, Opp Corr: -0.335
+2025-04-30 12:39:35 Processing 169 of 192: K=80, cap=40, decay=0.70, floor=5
+2025-04-30 12:39:38 Results - RMSE: 143.559, R²: 0.552, Opp Corr: -0.366
+2025-04-30 12:39:38 Processing 170 of 192: K=80, cap=40, decay=0.70, floor=10
+2025-04-30 12:39:40 Results - RMSE: 143.559, R²: 0.552, Opp Corr: -0.366
+2025-04-30 12:39:40 Processing 171 of 192: K=80, cap=40, decay=0.70, floor=15
+2025-04-30 12:39:42 Results - RMSE: 142.513, R²: 0.552, Opp Corr: -0.373
+2025-04-30 12:39:42 Processing 172 of 192: K=80, cap=40, decay=0.70, floor=20
+2025-04-30 12:39:45 Results - RMSE: 140.719, R²: 0.533, Opp Corr: -0.373
+2025-04-30 12:39:45 Processing 173 of 192: K=80, cap=40, decay=0.80, floor=5
+2025-04-30 12:39:47 Results - RMSE: 144.100, R²: 0.542, Opp Corr: -0.347
+2025-04-30 12:39:47 Processing 174 of 192: K=80, cap=40, decay=0.80, floor=10
+2025-04-30 12:39:50 Results - RMSE: 143.896, R²: 0.546, Opp Corr: -0.354
+2025-04-30 12:39:50 Processing 175 of 192: K=80, cap=40, decay=0.80, floor=15
+2025-04-30 12:39:53 Results - RMSE: 142.047, R²: 0.548, Opp Corr: -0.367
+2025-04-30 12:39:53 Processing 176 of 192: K=80, cap=40, decay=0.80, floor=20
+2025-04-30 12:39:55 Results - RMSE: 140.719, R²: 0.533, Opp Corr: -0.366
+2025-04-30 12:39:55 Processing 177 of 192: K=80, cap=40, decay=0.90, floor=5
+2025-04-30 12:39:57 Results - RMSE: 135.629, R²: 0.510, Opp Corr: -0.304
+2025-04-30 12:39:57 Processing 178 of 192: K=80, cap=40, decay=0.90, floor=10
+2025-04-30 12:39:59 Results - RMSE: 138.738, R²: 0.539, Opp Corr: -0.346
+2025-04-30 12:39:59 Processing 179 of 192: K=80, cap=40, decay=0.90, floor=15
+2025-04-30 12:40:02 Results - RMSE: 141.726, R²: 0.550, Opp Corr: -0.358
+2025-04-30 12:40:02 Processing 180 of 192: K=80, cap=40, decay=0.90, floor=20
+2025-04-30 12:40:05 Results - RMSE: 140.719, R²: 0.533, Opp Corr: -0.362
+2025-04-30 12:40:05 Processing 181 of 192: K=80, cap=50, decay=0.70, floor=5
+2025-04-30 12:40:07 Results - RMSE: 140.673, R²: 0.550, Opp Corr: -0.401
+2025-04-30 12:40:07 Processing 182 of 192: K=80, cap=50, decay=0.70, floor=10
+2025-04-30 12:40:10 Results - RMSE: 140.673, R²: 0.550, Opp Corr: -0.401
+2025-04-30 12:40:10 Processing 183 of 192: K=80, cap=50, decay=0.70, floor=15
+2025-04-30 12:40:12 Results - RMSE: 140.673, R²: 0.550, Opp Corr: -0.401
+2025-04-30 12:40:12 Processing 184 of 192: K=80, cap=50, decay=0.70, floor=20
+2025-04-30 12:40:14 Results - RMSE: 140.381, R²: 0.535, Opp Corr: -0.402
+2025-04-30 12:40:14 Processing 185 of 192: K=80, cap=50, decay=0.80, floor=5
+2025-04-30 12:40:17 Results - RMSE: 144.688, R²: 0.551, Opp Corr: -0.387
+2025-04-30 12:40:17 Processing 186 of 192: K=80, cap=50, decay=0.80, floor=10
+2025-04-30 12:40:19 Results - RMSE: 144.688, R²: 0.551, Opp Corr: -0.387
+2025-04-30 12:40:19 Processing 187 of 192: K=80, cap=50, decay=0.80, floor=15
+2025-04-30 12:40:22 Results - RMSE: 143.003, R²: 0.550, Opp Corr: -0.399
+2025-04-30 12:40:22 Processing 188 of 192: K=80, cap=50, decay=0.80, floor=20
+2025-04-30 12:40:24 Results - RMSE: 140.720, R²: 0.533, Opp Corr: -0.396
+2025-04-30 12:40:24 Processing 189 of 192: K=80, cap=50, decay=0.90, floor=5
+2025-04-30 12:40:27 Results - RMSE: 143.969, R²: 0.525, Opp Corr: -0.355
+2025-04-30 12:40:27 Processing 190 of 192: K=80, cap=50, decay=0.90, floor=10
+2025-04-30 12:40:29 Results - RMSE: 144.377, R²: 0.542, Opp Corr: -0.378
+2025-04-30 12:40:29 Processing 191 of 192: K=80, cap=50, decay=0.90, floor=15
+2025-04-30 12:40:31 Results - RMSE: 142.091, R²: 0.548, Opp Corr: -0.390
+2025-04-30 12:40:31 Processing 192 of 192: K=80, cap=50, decay=0.90, floor=20
+2025-04-30 12:40:34 Results - RMSE: 140.719, R²: 0.533, Opp Corr: -0.388
+2025-04-30 12:40:34 Grid search completed. Results saved.
