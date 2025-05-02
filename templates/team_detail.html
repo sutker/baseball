@@ -1,0 +1,369 @@
+{% extends "base.html" %}
+{% block content %}
+<main class="container">
+    <div class="page-header">
+        <a href="{{ url_for('teams') }}" class="back-button">← Back to Teams</a>
+    </div>
+    <div class="team-detail-header">
+        <div class="team-identity">
+            {% set team_short = team.team_name.split()[-1].lower() %}
+            <img src="{{ url_for('static', filename='images/' + team_short + '.png') }}" 
+                 alt="{{ team.team_name }}" 
+                 class="team-logo"
+                 onerror="this.src='{{ url_for('static', filename='images/baseball-icon.png') }}'">
+            <h1>{{ team.team_name }}</h1>
+        </div>
+
+        <div class="team-overview">
+            <div class="stat-box">
+                <span class="stat-label">Current Elo</span>
+                <span class="stat-value">{{ "%.0f"|format(team.final_elo) }}</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-label">Win Percentage</span>
+                <span class="stat-value">{{ "%.1f"|format(team.win_pct * 100) }}%</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-label">Opponent Elo̅</span>
+                <span class="stat-value">{{ "%.0f"|format(team.avg_opp_elo) }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="team-elo-plot">
+        <h2>Team Performance Trend</h2>
+        <img src="{{ url_for('static', filename='images/TeamElo2025/' + team_short + '_WinRatio_2025.png') }}" 
+             alt="{{ team.team_name }} Elo Rating Trend"
+             class="elo-plot"
+             onerror="this.src='{{ url_for('static', filename='images/baseball-icon.png') }}'">
+    </div>
+
+    <div class="stats-grid">
+        {% if batting %}
+        <div class="stats-card batting">
+            <div class="stats-header">
+                <span class="stats-icon">🏏</span>
+                <h2>Batting Stats</h2>
+            </div>
+            <div class="stats-content">
+                <div class="stat-row">
+                    <div class="stat-item">
+                        <span class="stat-name">OBP</span>
+                        <span class="stat-figure">{{ "%.3f"|format(batting.OBP) }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-name">SLG</span>
+                        <span class="stat-figure">{{ "%.3f"|format(batting.SLG) }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-name">AVG</span>
+                        <span class="stat-figure">{{ "%.3f"|format(batting.AVG) }}</span>
+                    </div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-item">
+                        <span class="stat-name">wRC</span>
+                        <span class="stat-figure">{{ "%.1f"|format(batting.wRC) }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-name">R</span>
+                        <span class="stat-figure">{{ "%.1f"|format(batting.R) }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if pitching %}
+        <div class="stats-card pitching">
+            <div class="stats-header">
+                <span class="stats-icon">⚾</span>
+                <h2>Pitching Stats</h2>
+            </div>
+            <div class="stats-content">
+                <div class="stat-row">
+                    <div class="stat-item">
+                        <span class="stat-name">ERA</span>
+                        <span class="stat-figure">{{ "%.2f"|format(pitching.ERA) }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-name">WHIP</span>
+                        <span class="stat-figure">{{ "%.3f"|format(pitching.WHIP) }}</span>
+                    </div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-item">
+                        <span class="stat-name">K/9</span>
+                        <span class="stat-figure">{{ "%.1f"|format(pitching.K_9) }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-name">BB/9</span>
+                        <span class="stat-figure">{{ "%.1f"|format(pitching.BB_9) }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-name">HR/9</span>
+                        <span class="stat-figure">{{ "%.1f"|format(pitching.HR_9) }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if fielding %}
+        <div class="stats-card fielding">
+            <div class="stats-header">
+                <span class="stats-icon">🧤</span>
+                <h2>Fielding Stats</h2>
+            </div>
+            <div class="stats-content">
+                <div class="stat-row">
+                    <div class="stat-item">
+                        <span class="stat-name">DRS</span>
+                        <span class="stat-figure">{{ "%.1f"|format(fielding.DRS) }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-name">Defense</span>
+                        <span class="stat-figure">{{ "%.3f"|format(fielding.Defense) }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Comment Form Section -->
+    <div class="community-section">
+        <h3>Fan Comments</h3>
+        
+        {% if session.get('user_id') %}
+        <div class="comment-form-container">
+            <form method="post" class="comment-form" id="comment-form">
+                {% if edit_comment %}
+                    <input type="hidden" name="edit_id" value="{{ edit_comment.id }}">
+                    <h4>Edit your comment</h4>
+                {% elif reply_to %}
+                    <input type="hidden" name="parent_id" value="{{ reply_to }}">
+                    <h4>Reply to {{ reply_author }}</h4>
+                {% else %}
+                    <h4>Share your thoughts</h4>
+                {% endif %}
+                
+                <textarea name="comment" id="comment-text" rows="3" placeholder="What do you think about the {{ team.team_name }}?">{% if edit_comment %}{{ edit_comment.comment }}{% endif %}</textarea>
+                <div class="invalid-feedback" id="comment-feedback"></div>
+                
+                <div class="form-controls">
+                    <button type="submit" class="btn">
+                        {% if edit_comment %}
+                            Save Changes
+                        {% elif reply_to %}
+                            Post Reply
+                        {% else %}
+                            Add Comment
+                        {% endif %}
+                    </button>
+                    
+                    {% if edit_comment or reply_to %}
+                    <a href="{{ url_for('team_detail', team_id=team.team_id) }}" class="btn btn-cancel">Cancel</a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <p>Please <a href="{{ url_for('login') }}">login</a> to join the conversation.</p>
+        </div>
+        {% endif %}
+        
+        <!-- Comments List -->
+        <div class="comment-list">
+            {% if reviews %}
+                {% set displayed_reviews = [] %}
+                
+                {% for review in reviews %}
+                    {% if not review.parent_id %}
+                        {% set _ = displayed_reviews.append(review.id) %}
+                        <div class="comment-card">
+                            <div class="comment-header">
+                                <span class="comment-author">{{ review.name }}</span>
+                                <span class="comment-date">{{ review.timestamp }}</span>
+                            </div>
+                            
+                            {% if session.get('user_id') == review.user_id %}
+                            <div class="comment-actions">
+                                <button onclick="toggleEditForm('{{ review.id }}')" class="btn-link">Edit</button>
+                                <form method="post" action="{{ url_for('delete_comment', comment_id=review.id) }}" class="delete-form">
+                                    <input type="hidden" name="team_id" value="{{ team.team_id }}">
+                                    <button type="submit" class="btn-link" onclick="return confirm('Are you sure you want to delete this comment?')">Delete</button>
+                                </form>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="comment-body" id="comment-body-{{ review.id }}">
+                                {{ review.comment }}
+                            </div>
+                            
+                            <div class="edit-form" id="edit-form-{{ review.id }}" style="display: none;">
+                                <form method="post" class="comment-form edit-comment-form" id="edit-form-{{ review.id }}-form">
+                                    <input type="hidden" name="edit_id" value="{{ review.id }}">
+                                    <textarea name="comment" id="edit-comment-{{ review.id }}" required rows="3">{{ review.comment }}</textarea>
+                                    <div class="invalid-feedback" id="edit-feedback-{{ review.id }}"></div>
+                                    <div class="edit-form-actions">
+                                        <button type="submit" class="btn btn-sm">Save</button>
+                                        <button type="button" class="btn btn-cancel btn-sm" onclick="toggleEditForm('{{ review.id }}')">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+                            
+                            {% if session.get('user_id') %}
+                            <div class="comment-footer">
+                                <button onclick="toggleReplyForm('{{ review.id }}')" class="btn-link">Reply</button>
+                            </div>
+                            
+                            <div id="reply-form-{{ review.id }}" class="reply-form" style="display: none;">
+                                <form method="post" class="comment-form reply-comment-form" id="reply-form-{{ review.id }}-form">
+                                    <input type="hidden" name="parent_id" value="{{ review.id }}">
+                                    <textarea name="comment" id="reply-comment-{{ review.id }}" placeholder="Reply to {{ review.name }}..." required rows="3"></textarea>
+                                    <div class="invalid-feedback" id="reply-feedback-{{ review.id }}"></div>
+                                    <div class="reply-form-actions">
+                                        <button type="submit" class="btn btn-sm">Post Reply</button>
+                                        <button type="button" class="btn btn-cancel btn-sm" onclick="toggleReplyForm('{{ review.id }}')">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Display replies -->
+                            {% for reply in reviews %}
+                                {% if reply.parent_id == review.id %}
+                                    {% set _ = displayed_reviews.append(reply.id) %}
+                                    <div class="comment-reply">
+                                        <div class="comment-header">
+                                            <span class="comment-author">{{ reply.name }}</span>
+                                            <span class="comment-date">{{ reply.timestamp }}</span>
+                                        </div>
+                                        
+                                        {% if session.get('user_id') == reply.user_id %}
+                                        <div class="comment-actions">
+                                            <button onclick="toggleEditForm('{{ reply.id }}')" class="btn-link">Edit</button>
+                                            <form method="post" action="{{ url_for('delete_comment', comment_id=reply.id) }}" class="delete-form">
+                                                <input type="hidden" name="team_id" value="{{ team.team_id }}">
+                                                <button type="submit" class="btn-link" onclick="return confirm('Are you sure you want to delete this comment?')">Delete</button>
+                                            </form>
+                                        </div>
+                                        {% endif %}
+                                        
+                                        <div class="comment-body" id="comment-body-{{ reply.id }}">
+                                            {{ reply.comment }}
+                                        </div>
+                                        
+                                        <div class="edit-form" id="edit-form-{{ reply.id }}" style="display: none;">
+                                            <form method="post" class="comment-form edit-comment-form" id="edit-form-{{ reply.id }}-form">
+                                                <input type="hidden" name="edit_id" value="{{ reply.id }}">
+                                                <textarea name="comment" id="edit-comment-{{ reply.id }}" required rows="3">{{ reply.comment }}</textarea>
+                                                <div class="invalid-feedback" id="edit-feedback-{{ reply.id }}"></div>
+                                                <div class="edit-form-actions">
+                                                    <button type="submit" class="btn btn-sm">Save</button>
+                                                    <button type="button" class="btn btn-cancel btn-sm" onclick="toggleEditForm('{{ reply.id }}')">Cancel</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <div class="no-comments">
+                    <p>Be the first to comment on this team!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <script>
+        // Save scroll position before form submission
+        window.addEventListener('beforeunload', function() {
+            localStorage.setItem('scrollPosition', window.scrollY);
+        });
+
+        // Restore scroll position after page load
+        window.addEventListener('load', function() {
+            const scrollPosition = localStorage.getItem('scrollPosition');
+            if (scrollPosition) {
+                window.scrollTo(0, parseInt(scrollPosition));
+                localStorage.removeItem('scrollPosition');
+            }
+            
+            // Initialize validation for main comment form
+            const commentForm = document.getElementById('comment-form');
+            if (commentForm) {
+                initializeFormValidation(commentForm, 'comment-text', 'comment-feedback');
+            }
+            
+            // Initialize validation for all edit forms
+            document.querySelectorAll('.edit-comment-form').forEach(function(form) {
+                const formId = form.id;
+                const commentId = formId.replace('-form', '').replace('edit-form-', '');
+                initializeFormValidation(form, `edit-comment-${commentId}`, `edit-feedback-${commentId}`);
+            });
+            
+            // Initialize validation for all reply forms
+            document.querySelectorAll('.reply-comment-form').forEach(function(form) {
+                const formId = form.id;
+                const commentId = formId.replace('-form', '').replace('reply-form-', '');
+                initializeFormValidation(form, `reply-comment-${commentId}`, `reply-feedback-${commentId}`);
+            });
+        });
+
+        function toggleEditForm(commentId) {
+            const commentBody = document.getElementById(`comment-body-${commentId}`);
+            const editForm = document.getElementById(`edit-form-${commentId}`);
+            
+            if (editForm.style.display === 'none') {
+                commentBody.style.display = 'none';
+                editForm.style.display = 'block';
+                editForm.querySelector('textarea').focus();
+            } else {
+                commentBody.style.display = 'block';
+                editForm.style.display = 'none';
+            }
+        }
+
+        function toggleReplyForm(commentId) {
+            const replyForm = document.getElementById(`reply-form-${commentId}`);
+            if (replyForm.style.display === 'none') {
+                replyForm.style.display = 'block';
+                replyForm.querySelector('textarea').focus();
+            } else {
+                replyForm.style.display = 'none';
+            }
+        }
+        
+        function initializeFormValidation(form, textareaId, feedbackId) {
+            const textarea = document.getElementById(textareaId);
+            const feedback = document.getElementById(feedbackId);
+            
+            if (!form || !textarea || !feedback) return;
+            
+            form.addEventListener('submit', function(event) {
+                if (!textarea.value.trim()) {
+                    event.preventDefault();
+                    textarea.classList.add('is-invalid');
+                    feedback.textContent = 'Comment cannot be empty.';
+                } else {
+                    textarea.classList.remove('is-invalid');
+                    feedback.textContent = '';
+                }
+            });
+            
+            textarea.addEventListener('input', function() {
+                if (this.value.trim()) {
+                    this.classList.remove('is-invalid');
+                    feedback.textContent = '';
+                }
+            });
+        }
+    </script>
+</main>
+{% endblock %}
