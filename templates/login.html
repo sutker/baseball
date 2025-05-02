@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block content %}
+<main class="container">
+  <div class="card login-card">
+    <h2 class="section-title">Login</h2>
+    <form method="POST" action="/login" class="form" id="login-form">
+      <div class="form-field-container">
+        <label for="email">Email:</label>
+        <input type="email" name="email" id="email" class="form-control">
+        <span class="invalid-feedback" id="email-feedback"></span>
+      </div>
+
+      <div class="form-field-container">
+        <label for="password">Password:</label>
+        <input type="password" name="password" id="password" class="form-control">
+        <span class="invalid-feedback" id="password-feedback"></span>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+    <p style="margin-top: 1rem;">Don't have an account? <a href="/add">Register here</a>.</p>
+  </div>
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const loginForm = document.getElementById('login-form');
+  const emailInput = document.getElementById('email');
+  const passwordInput = document.getElementById('password');
+  const emailFeedback = document.getElementById('email-feedback');
+  const passwordFeedback = document.getElementById('password-feedback');
+  
+  // Client-side validation before form submission
+  loginForm.addEventListener('submit', function(event) {
+    let isValid = true;
+    
+    // Email validation
+    if (!emailInput.value.trim()) {
+      emailInput.classList.add('is-invalid');
+      emailFeedback.textContent = 'Email is required';
+      isValid = false;
+    } else {
+      emailInput.classList.remove('is-invalid');
+      emailFeedback.textContent = '';
+    }
+    
+    // Password validation
+    if (!passwordInput.value.trim()) {
+      passwordInput.classList.add('is-invalid');
+      passwordFeedback.textContent = 'Password is required';
+      isValid = false;
+    } else {
+      passwordInput.classList.remove('is-invalid');
+      passwordFeedback.textContent = '';
+    }
+    
+    if (!isValid) {
+      event.preventDefault();
+    }
+  });
+  
+  // Clear error messages when user starts typing
+  emailInput.addEventListener('input', function() {
+    if (this.value.trim()) {
+      this.classList.remove('is-invalid');
+      emailFeedback.textContent = '';
+    }
+  });
+  
+  passwordInput.addEventListener('input', function() {
+    if (this.value.trim()) {
+      this.classList.remove('is-invalid');
+      passwordFeedback.textContent = '';
+    }
+  });
+});
+</script>
+{% endblock %}
