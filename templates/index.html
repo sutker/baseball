@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="hero-content">
+        <h1 class="hero-title">Baseball Analytics Platform</h1>
+        <p class="hero-subtitle">Advanced Statistics & Predictions for Baseball Enthusiasts</p>
+        <p class="hero-description">Discover team statistics, player performance metrics, and predictive analytics powered by advanced ELO ratings.</p>
+        <div class="hero-cta">
+            <a href="{{ url_for('teams') }}" class="cta-button primary">Explore Teams</a>
+            <a href="{{ url_for('predict') }}" class="cta-button secondary">Make Predictions</a>
+        </div>
+    </div>
+</div>
+
+<section class="features-section">
+    <h2 class="section-title">What We Offer</h2>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>Team Statistics</h3>
+            <p>Comprehensive batting, pitching, and fielding statistics for all MLB teams from 2021 to 2025.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📈</div>
+            <h3>ELO Ratings</h3>
+            <p>Advanced ELO rating system to track team performance and competitive standing over time.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🎯</div>
+            <h3>Predictions</h3>
+            <p>Data-driven predictions based on historical performance and current team dynamics.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📱</div>
+            <h3>Real-time Updates</h3>
+            <p>Stay current with the latest team statistics and performance metrics throughout the season.</p>
+        </div>
+    </div>
+</section>
+
+<section class="join-section">
+    <div class="join-content">
+        <h2>Ready to Dive Deeper?</h2>
+        <p>Get access to advanced analytics, historical data, and predictive insights to enhance your baseball knowledge.</p>
+        <a href="{{ url_for('login') }}" class="join-button">Get Started</a>
+    </div>
+</section>
+{% endblock %}
