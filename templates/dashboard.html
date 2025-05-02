@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+{% block content %}
+<main class="container">
+    <div class="threads-container">
+        <div class="threads-header">
+            <h1>Discussion Board</h1>
+            <p class="subtitle">Create or join discussions about baseball predictions and analysis</p>
+        </div>
+        
+        <!-- New Message Form -->
+        <div class="new-thread-form">
+            <form method="post" enctype="multipart/form-data" id="message-form">
+                {% if edit_id %}
+                    <input type="hidden" name="edit_id" value="{{ edit_id }}">
+                    {% if thread_id %}
+                        <input type="hidden" name="thread_id" value="{{ thread_id }}">
+                    {% endif %}
+                {% endif %}
+                
+                {% if reply_to %}
+                    <input type="hidden" name="reply_to" value="{{ reply_to }}">
+                {% endif %}
+                
+                <textarea name="message" id="message-content" placeholder="Start a new discussion...">{% if edit_id %}{% for m in messages %}{% if m.id == edit_id %}{{ m.content }}{% endif %}{% endfor %}{% endif %}</textarea>
+                <div class="invalid-feedback" id="message-feedback"></div>
+                
+                <div class="form-controls">
+                    <div class="image-upload">
+                        <label for="image">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                                <path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"/>
+                            </svg>
+                            Add Image
+                        </label>
+                        <input type="file" name="image" id="image" accept="image/*" onchange="previewImage(this)">
+                    </div>
+                    
+                    <div class="preview" id="preview-container"></div>
+                    
+                    <button type="submit" class="btn">
+                        {% if edit_id %}
+                            Save Changes
+                        {% elif reply_to %}
+                            Post Reply
+                        {% else %}
+                            Create Thread
+                        {% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        {% if thread_id %}
+            <!-- Thread View -->
+            <div class="thread-main">
+                {% for message in messages %}
+                    {% if message.id == thread_id %}
+                        <div class="user-info">
+                            {% if message.user_image %}
+                                <img src="{{ url_for('static', filename='images/' + message.user_image) }}" alt="{{ message.name }}" class="user-avatar" onerror="this.src='{{ url_for('static', filename='images/baseball-icon.png') }}'">
+                            {% else %}
+                                <img src="{{ url_for('static', filename='images/baseball-icon.png') }}" alt="Default avatar" class="user-avatar">
+                            {% endif %}
+                            <div>
+                                <span class="author">{{ message.name }}</span>
+                                <span class="timestamp">{{ message.timestamp }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="message-content">
+                            {{ message.content }}
+                        </div>
+                        
+                        {% if message.image %}
+                            <div class="message-image">
+                                <img src="{{ url_for('static', filename='images/' + message.image) }}" alt="Message image" onclick="openModal(this.src)">
+                            </div>
+                        {% endif %}
+                        
+                        {% if message.user_id == session.get('user_id') %}
+                            <div class="thread-footer">
+                                <div class="thread-actions">
+                                    <a href="{{ url_for('dashboard', edit_id=message.id) }}" class="btn-link">Edit</a>
+                                    <form method="post" action="{{ url_for('delete_message', message_id=message.id) }}" class="inline-form" onsubmit="return confirm('Are you sure you want to delete this message?')">
+                                        <button type="submit" class="btn-link">Delete</button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+            </div>
+            
+            <div class="replies-section">
+                {% for message in messages %}
+                    {% if message.parent_id == thread_id %}
+                        <div class="reply-item">
+                            <div class="reply-header">
+                                <div class="user-info">
+                                    {% if message.user_image %}
+                                        <img src="{{ url_for('static', filename='images/' + message.user_image) }}" alt="{{ message.name }}" class="user-avatar-small" onerror="this.src='{{ url_for('static', filename='images/baseball-icon.png') }}'">
+                                    {% else %}
+                                        <img src="{{ url_for('static', filename='images/baseball-icon.png') }}" alt="Default avatar" class="user-avatar-small">
+                                    {% endif %}
+                                    <div>
+                                        <span class="author">{{ message.name }}</span>
+                                        <span class="timestamp">{{ message.timestamp }}</span>
+                                    </div>
+                                </div>
+                                
+                                {% if message.user_id == session.get('user_id') %}
+                                    <div class="message-actions">
+                                        <a href="{{ url_for('dashboard', edit_id=message.id, thread=thread_id) }}" class="btn-link">Edit</a>
+                                        <form method="post" action="{{ url_for('delete_message', message_id=message.id) }}" class="inline-form" onsubmit="return confirm('Are you sure you want to delete this reply?')">
+                                            <button type="submit" class="btn-link">Delete</button>
+                                        </form>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="message-content">
+                                {{ message.content }}
+                            </div>
+                            
+                            {% if message.image %}
+                                <div class="message-image">
+                                    <img src="{{ url_for('static', filename='images/' + message.image) }}" alt="Message image" onclick="openModal(this.src)">
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <!-- Threads List -->
+            {% for message in messages %}
+                <div class="thread-card">
+                    <div class="user-info">
+                        {% if message.user_image %}
+                            <img src="{{ url_for('static', filename='images/' + message.user_image) }}" alt="{{ message.name }}" class="user-avatar" onerror="this.src='{{ url_for('static', filename='images/baseball-icon.png') }}'">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='images/baseball-icon.png') }}" alt="Default avatar" class="user-avatar">
+                        {% endif %}
+                        <div>
+                            <span class="author">{{ message.name }}</span>
+                            <span class="timestamp">{{ message.timestamp }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="thread-preview">
+                        <p class="preview-text">{{ message.content[:200] }}{% if message.content|length > 200 %}...{% endif %}</p>
+                    </div>
+                    
+                    {% if message.image %}
+                        <div class="thread-preview-image">
+                            <img src="{{ url_for('static', filename='images/' + message.image) }}" alt="Thread image" onclick="openModal(this.src)">
+                        </div>
+                    {% endif %}
+                    
+                    <div class="thread-footer">
+                        <a href="{{ url_for('dashboard', thread=message.id) }}" class="thread-link">
+                            Read more{% if message.reply_count %} ({{ message.reply_count }} {% if message.reply_count == 1 %}reply{% else %}replies{% endif %}){% endif %}
+                        </a>
+                        
+                        {% if message.user_id == session.get('user_id') %}
+                            <div class="thread-actions">
+                                <a href="{{ url_for('dashboard', edit_id=message.id) }}" class="btn-link">Edit</a>
+                                <form method="post" action="{{ url_for('delete_message', message_id=message.id) }}" class="inline-form" onsubmit="return confirm('Are you sure you want to delete this thread?')">
+                                    <button type="submit" class="btn-link">Delete</button>
+                                </form>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+</main>
+
+<!-- Image Modal -->
+<div id="imageModal" class="modal">
+    <span class="modal-close" onclick="closeModal()">&times;</span>
+    <img class="modal-content" id="modalImg">
+</div>
+
+<script>
+    function previewImage(input) {
+        const previewContainer = document.getElementById('preview-container');
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewContainer.innerHTML = `
+                    <div class="image-preview">
+                        <img src="${e.target.result}" alt="Preview">
+                        <button type="button" class="remove-preview" onclick="removePreview()">×</button>
+                    </div>`;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function removePreview() {
+        document.getElementById('preview-container').innerHTML = '';
+        document.getElementById('image').value = '';
+    }
+
+    function openModal(src) {
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImg');
+        modal.style.display = "block";
+        modalImg.src = src;
+    }
+
+    function closeModal() {
+        document.getElementById('imageModal').style.display = "none";
+    }
+
+    // Form validation
+    document.addEventListener('DOMContentLoaded', function() {
+        const messageForm = document.getElementById('message-form');
+        const messageContent = document.getElementById('message-content');
+        const messageFeedback = document.getElementById('message-feedback');
+        
+        messageForm.addEventListener('submit', function(event) {
+            // Check if message content is empty
+            if (!messageContent.value.trim()) {
+                event.preventDefault();
+                messageContent.classList.add('is-invalid');
+                messageFeedback.textContent = 'Message content cannot be empty.';
+            } else {
+                messageContent.classList.remove('is-invalid');
+                messageFeedback.textContent = '';
+            }
+        });
+        
+        // Remove validation error when user starts typing
+        messageContent.addEventListener('input', function() {
+            if (this.value.trim()) {
+                this.classList.remove('is-invalid');
+                messageFeedback.textContent = '';
+            }
+        });
+    });
+</script>
+{% endblock %}
