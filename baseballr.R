@@ -980,23 +980,6 @@ PlayerFieldingStatistics2025 <- PlayerFieldingStatistics2025 %>% rename(player_p
 
 print("✅ Unified primary key created and applied for 2025 datasets.")
 
-# ================== #
-# Exporting as a CSV
-# ================== #
-
-export_dir <- "C:/Users/micha/OneDrive/Desktop/MLBData"
-
-write_csv(TeamList, file.path(export_dir, "TeamList.csv"))
-write_csv(Rosters2025, file.path(export_dir, "TeamRosters2025.csv"))
-write_csv(TeamBattingStatistics2025, file.path(export_dir, "TeamBattingStatistics.csv"))
-write_csv(TeamPitchingStatistics2025, file.path(export_dir, "TeamPitchingStatistics.csv"))
-write_csv(TeamFieldingStatistics2025, file.path(export_dir, "TeamFieldingStatistics.csv"))
-write_csv(PlayerBattingStatistics2025, file.path(export_dir, "PlayerBattingStatistics.csv"))
-write_csv(PlayerFieldingStatistics2025, file.path(export_dir, "PlayerFieldingStatistics.csv"))
-write_csv(GameInformation2025, file.path(export_dir, "GameInformation.csv"))
-write_csv(BatterGameLogs2025, file.path(export_dir, "BatterGameLogs.csv"))
-write_csv(PitcherGameLogs2025, file.path(export_dir, "PitcherGameLogs.csv"))
-
 # ==================================================================================== #
 #                      PLAYER ELO SYSTEM — 2025 (WIP: NEED TO TRAIN)
 # ==================================================================================== #
@@ -1184,9 +1167,6 @@ PlayerFinalEloWithNames2025 <- PlayerFinalEloRatings2025 %>%
 cat("📊 Pitchers updated:", length(unique(PlayerEloLog2025$pitcher_pk)), "\n")
 cat("📊 Batters updated:", length(unique(PlayerEloLog2025$batter_pk)), "\n")
 
-player_elo_csv_path_2025 <- file.path(export_dir, "PlayerElo2025.csv")
-write_csv(PlayerFinalEloWithNames2025, player_elo_csv_path_2025)
-cat("📂 Player Elos: ", player_elo_csv_path_2025, "\n")
 
 # ==================================================================================== #
 #                                TEAM ELO SYSTEM — 2025
@@ -1433,15 +1413,6 @@ print(paste("RMSE:", round(rmse_2025, 2)))
 r_squared_2025 <- summary(elo_model_2025)$r.squared
 print(paste("R-squared:", round(r_squared_2025, 4)))
 
-# Export results
-team_elo_log_csv_path_2025 <- file.path(export_dir, "TeamEloLog2025.csv")
-write_csv(TeamEloLog2025, team_elo_log_csv_path_2025)
-cat("📂 Team Elo Log (2025): ", team_elo_log_csv_path_2025, "\n")
-
-team_current_elo_csv_path_2025 <- file.path(export_dir, "TeamElo2025.csv")
-write_csv(TeamFinalSummary2025, team_current_elo_csv_path_2025)
-cat("📂 Team Elo Summary (2025): ", team_current_elo_csv_path_2025, "\n")
-
 # ==================================================================================== #
 #                  PREDICTING RUNS SCORED (Single Season — 2025 Only)
 # ==================================================================================== #
@@ -1620,3 +1591,149 @@ if (accuracy_logistic_2025 >= best_acc_2025) {
     )
 }
 
+TeamEloLog2025 <- TeamEloLog2025 %>%
+  left_join(TeamList %>% select(home_team_id = id, home_team_name = name), by = "home_team_id") %>%
+  left_join(TeamList %>% select(away_team_id = id, away_team_name = name), by = "away_team_id")
+
+# ==================================================================================== #
+#                           PART 3: Exporting Data & Plots
+# ==================================================================================== #
+
+# === Define export path ===
+export_path <- "C:/Users/micha/OneDrive/Desktop/BaseballProject/data"
+
+# === Helper function ===
+safe_export <- function(df_name) {
+  tryCatch({
+    df <- get(df_name)
+    write_csv(df, file.path(export_path, paste0(df_name, ".csv")))
+    cat("✅ Exported:", df_name, "\n")
+  }, error = function(e) {
+    cat("❌ Could not export:", df_name, "—", conditionMessage(e), "\n")
+  })
+}
+
+# === Key data frames to export ===
+export_list <- c(
+  # Final summaries
+  "TeamFinalSummary",
+  "TeamFinalSummary2025",
+  "PlayerFinalEloWithNames2025",
+  
+  # Game-level predictions
+  "TrainingDataClean",
+  "TrainingDataClean2025",
+  "TeamEloLog",
+  "TeamEloLog2025",
+  "PlayerEloLog2025",
+  
+  # Team stats (2021–2025)
+  paste0("TeamBattingStatistics", 2021:2025),
+  paste0("TeamPitchingStatistics", 2021:2025),
+  paste0("TeamFieldingStatistics", 2021:2025),
+  
+  # Player stats
+  "PlayerBattingStatistics2025",
+  "PlayerFieldingStatistics2025",
+  "BatterGameLogs2025",
+  "PitcherGameLogs2025",
+  
+  # Game metadata
+  "MasterGameInformation",
+  "GameInformation2025"
+)
+
+# === Export all ===
+lapply(export_list, safe_export)
+
+# PLOTS
+# === Output path for images ===
+plot_path <- "C:/Users/micha/OneDrive/Desktop/BaseballProject/static/images"
+
+# === Helper function to export ggplot ===
+export_plot <- function(plot_obj, filename, width = 10, height = 6, dpi = 300) {
+  ggsave(filename = file.path(plot_path, paste0(filename, ".png")),
+         plot = plot_obj, width = width, height = height, dpi = dpi)
+  cat("✅ Saved:", filename, "\n")
+}
+
+# === Plots from your script ===
+
+# 1️⃣ Grid Search Performance Plot
+export_plot(TeamEloParameterPlot, "TeamElo_GridSearch_Performance")
+
+# 2️⃣ Final Elo vs Win Percentage (2021–2024)
+plot_elo_legacy <- ggplot(TeamFinalSummary, aes(x = win_pct, y = final_elo)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = FALSE, color = "darkgreen") +
+  geom_text(aes(label = team_name), vjust = -1.1, size = 3) +
+  labs(title = "Final Elo vs Win Percentage (2021–2024)",
+       x = "Win Percentage", y = "Final Elo") +
+  theme_minimal(base_size = 14)
+export_plot(plot_elo_legacy, "FinalElo_vs_WinPct_2021_2024")
+
+# 3️⃣ Final Elo vs Win Percentage (2025)
+plot_elo_2025 <- ggplot(TeamFinalSummary2025, aes(x = win_pct, y = final_elo)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = FALSE, color = "darkgreen") +
+  geom_text(aes(label = team_name), vjust = -1.1, size = 3) +
+  labs(title = "Final Elo vs Win Percentage (2025)",
+       x = "Win Percentage", y = "Final Elo") +
+  theme_minimal(base_size = 14)
+export_plot(plot_elo_2025, "FinalElo_vs_WinPct_2025")
+
+Team_plot_id <- 112   # e.g. Yankees
+Team_plot_name <- TeamList %>% filter(id == Team_plot_id) %>% pull(name)
+
+Team_team_elo_2025 <- TeamEloLog2025 %>%
+  filter(home_team_id == Team_plot_id | away_team_id == Team_plot_id) %>%
+  mutate(
+    Team_team_elo = ifelse(home_team_id == Team_plot_id, home_elo_after, away_elo_after),
+    opponent_id = ifelse(home_team_id == Team_plot_id, away_team_id, home_team_id),
+    team_score = ifelse(home_team_id == Team_plot_id, home_score, away_score),
+    opponent_score = ifelse(home_team_id == Team_plot_id, away_score, home_score),
+    score_label = paste0(team_score, "–", opponent_score),
+    outcome = case_when(
+      team_score > opponent_score ~ "Win",
+      team_score < opponent_score ~ "Loss",
+      TRUE ~ "Tie"
+    ),
+    season = lubridate::year(as.Date(date)),
+    win = ifelse(outcome == "Win", 1, 0),
+    loss = ifelse(outcome == "Loss", 1, 0)
+  ) %>%
+  group_by(season) %>%
+  mutate(
+    cum_win = cumsum(win),
+    cum_loss = cumsum(loss),
+    win_ratio = cum_win / (cum_win + cum_loss),
+    win_ratio_scaled = 500 + win_ratio * 1000
+  ) %>%
+  ungroup() %>%
+  left_join(TeamList %>% select(id, opponent_abbr = abbreviation), by = c("opponent_id" = "id")) %>%
+  arrange(as.Date(date)) %>%
+  mutate(frame = row_number())
+
+# 4️⃣ Elo & Win Ratio Over Time (2025 - Team ID 112)
+export_plot(
+  ggplot(Team_team_elo_2025, aes(x = as.Date(date))) +
+    geom_line(aes(y = Team_team_elo), color = "#1f1f1f", size = 1.1) +
+    geom_line(aes(y = win_ratio_scaled), color = "#1b9e77", linetype = "dashed", size = 1) +
+    geom_text(data = final_point,
+              aes(y = Team_team_elo, label = paste0("Elo: ", round(Team_team_elo))),
+              hjust = 1.1, vjust = -5.1, color = "#1f1f1f", fontface = "bold") +
+    geom_text(data = final_point,
+              aes(y = win_ratio_scaled, label = paste0("Win Ratio: ", scales::percent(win_ratio))),
+              hjust = 1.1, vjust = -8.1, color = "#1b9e77", fontface = "bold") +
+    scale_y_continuous(
+      name = "Elo Rating", limits = c(500, 1500),
+      sec.axis = sec_axis(~ (. - 500) / 1000, name = "Win Ratio", labels = scales::percent_format())
+    ) +
+    scale_x_date(expand = expansion(mult = c(0.01, 0.05))) +
+    labs(
+      title = paste("📈 Elo & Win Ratio over Time for", Team_plot_name, "(2025)"),
+      subtitle = "Solid = Elo | Dashed = Win Ratio",
+      x = "Date", y = "Elo Rating"
+    ) +
+    theme_minimal(base_size = 14),
+  "Elo_WinRatio_OverTime_2025_Team112")
