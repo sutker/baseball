@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block content %}
+<main class="container">
+    <div class="teams-header">
+        <h1>MLB Team Rankings</h1>
+        <p class="lead">Current team standings and performance metrics based on our advanced Elo rating system</p>
+    </div>
+
+    <div class="teams-card">
+        <div class="teams-filters">
+            <div class="search-box">
+                <input type="text" id="teamSearch" placeholder="Search for a team..." class="team-search">
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="teams-table">
+                <thead>
+                    <tr>
+                        <th class="team-column">Team</th>
+                        <th>GP</th>
+                        <th>W</th>
+                        <th>L</th>
+                        <th>Win %</th>
+                        <th class="elo-column">Current Elo</th>
+                        <th class="opp-elo-column">Opponent Elo̅</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for team in teams %}
+                    <tr>
+                        <td class="team-column">
+                            <a href="{{ url_for('team_detail', team_id=team['team_id']) }}" class="team-link">
+                                {% set team_short = team['team_name'].split()[-1].lower() %}
+                                <img src="{{ url_for('static', filename='images/' + team_short + '.png') }}" 
+                                     alt="{{ team['team_name'] }}" 
+                                     class="team-icon"
+                                     onerror="this.src='{{ url_for('static', filename='images/baseball-icon.png') }}'">
+                                <span>{{ team['team_name'] }}</span>
+                            </a>
+                        </td>
+                        <td>{{ team['games_played'] }}</td>
+                        <td>{{ team['wins'] }}</td>
+                        <td>{{ team['losses'] }}</td>
+                        <td>{{ "%.3f"|format(team['win_pct']) }}</td>
+                        <td class="elo-column">{{ "%.0f"|format(team['final_elo']) }}</td>
+                        <td class="opp-elo-column">{{ "%.0f"|format(team['avg_opp_elo']) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="table-legend">
+            <div class="legend-item">
+                <span class="legend-icon">📊</span>
+                <span class="legend-text">GP: Games Played</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-icon">📈</span>
+                <span class="legend-text">Current Elo: Team's live rating based on performance</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-icon">⚖️</span>
+                <span class="legend-text">Opponent Elo̅: Average strength of opponents faced</span>
+            </div>
+        </div>
+    </div>
+
+    {% block scripts %}
+    <script>
+        document.getElementById('teamSearch').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('.teams-table tbody tr');
+            
+            rows.forEach(row => {
+                const teamName = row.querySelector('.team-link span').textContent.toLowerCase();
+                row.style.display = teamName.includes(searchTerm) ? '' : 'none';
+            });
+        });
+    </script>
+    {% endblock %}
+</main>
+{% endblock %}
