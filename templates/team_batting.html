@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="table-container">
+  <h2>Team Batting Statistics (2025)</h2>
+
+  <form method="GET">
+    <label for="team">Filter by Team:</label>
+    <select name="team" id="team" onchange="this.form.submit()">
+      <option value="">All Teams</option>
+      {% for t in team_list %}
+        <option value="{{ t }}" {% if t == selected_team %}selected{% endif %}>{{ t }}</option>
+      {% endfor %}
+    </select>
+  </form>
+
+  <table>
+    <thead>
+      <tr>
+        {% for col in columns %}
+          <th>{{ col }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in data %}
+        <tr>
+          {% for col in columns %}
+            <td>{{ row[col] }}</td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
