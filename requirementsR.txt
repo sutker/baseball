@@ -1,0 +1,20 @@
+# R Package Dependencies
+baseballr
+dplyr
+readr
+lubridate
+ggplot2
+ggrepel
+gganimate
+scales
+tidyr
+randomForest
+gbm
+tibble
+SHAPforxgboost
+xgboost
+caret
+Matrix
+pROC
+car
+corrrplot
